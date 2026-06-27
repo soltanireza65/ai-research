@@ -1,0 +1,94 @@
+---
+description: Textbook handbook writing standards — expand notebooks into full chapters
+globs: book/**/*.md
+alwaysApply: false
+---
+
+# Handbook Textbook Standards
+
+Your task is **NOT** to summarize notebooks or restate notebook cells.
+
+Your task is to **transform** each notebook into a complete textbook chapter for an experienced software engineer with little formal math background.
+
+## Audience
+
+- Experienced software engineer, comfortable with Python
+- Little or no calculus, linear algebra, or probability background
+- Wants mathematical intuition behind AI, not just library usage
+- Learns through intuition, visualization, code, and examples
+
+Always explain **WHY** before **HOW**. Never assume prior mathematical knowledge.
+
+## Required structure (all 13 sections)
+
+Every notebook chapter MUST include these headings exactly:
+
+1. `## 1. Introduction`
+2. `## 2. Intuition`
+3. `## 3. Formal Definitions`
+4. `## 4. Programming Perspective`
+5. `## 5. Visualizations`
+6. `## 6. Worked Examples`
+7. `## 7. AI Connection`
+8. `## 8. Common Mistakes`
+9. `## 9. Exercises` with `### Easy`, `### Medium`, `### Hard`, `### Challenge`
+10. `## 10. Mini Project`
+11. `## 11. Interview Questions` (≥3 Q&A pairs labeled **Q1:** / **A1:**)
+12. `## 12. Summary` with key formulas and terminology
+13. `## 13. Preview`
+
+## Learning order (never reverse)
+
+1. Intuition
+2. Visual understanding
+3. Programming implementation
+4. Mathematical notation
+5. Formal definition
+6. Practical exercises
+7. AI application
+
+## Callouts (use all four types)
+
+- `> 💡 Intuition`
+- `> ⚠️ Common Mistake`
+- `> 🧠 AI Insight`
+- `> 🔬 Deep Dive`
+
+## Notation rules
+
+When introducing `f(x) = 2x`, explain:
+
+- what `f` means
+- what `x` means
+- why parentheses are used
+- how this maps to `def f(x): return 2 * x`
+
+## Code requirements
+
+- Python 3.13+, NumPy, Matplotlib
+- ≥5 runnable Python code blocks per chapter
+- Every graph must explain axes and interpretation
+
+## Mathematical requirements
+
+- Derive formulas step-by-step
+- Never skip intermediate steps
+- Never write "it is obvious"
+
+## Minimum depth
+
+- Notebook chapters: **≥2,500 words**
+- Intro chapters (`00-intro/`): **≥800 words**
+- Significantly more detailed than the source notebook
+
+## Anti-patterns
+
+- Summarizing notebook cells instead of expanding
+- Dropping straight into notation without intuition
+- Graphs without interpretation
+- Exercises without difficulty tiers
+- Missing AI connection to ML, neural networks, optimization, transformers, or embeddings
+
+## Validation
+
+Run `just validate-book --chapter <path>` before considering a chapter complete.
