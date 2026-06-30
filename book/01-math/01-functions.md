@@ -264,6 +264,30 @@ Given \(g(x) = x^2\), compute \(g(-3)\) and \(g(3)\).
 
 Squaring removes the sign. The parabola is symmetric about the y-axis. This matters when you see even activation patterns or symmetric loss landscapes.
 
+### Quadratic Symmetry
+
+For the quadratic function
+
+[
+g(x) = x^2
+]
+
+the outputs for (x) and (-x) are always the same because squaring removes the sign:
+
+[
+g(3) = 3^2 = 9,\qquad
+g(-3) = (-3)^2 = 9
+]
+
+This means
+
+[
+g(-x) = g(x)
+]
+
+so (g(x)) is an **even function**. Its graph is a **parabola** (Persian: **سهمی**) and is **symmetric about the y-axis**—the left and right sides are mirror images of each other. This property appears frequently in mathematics and machine learning, especially when analyzing symmetric functions and loss landscapes.
+
+
 ### Example 3: Function composition
 
 Let \(f(x) = 2x\) and \(h(x) = x + 3\). Find \(f(h(2))\).
@@ -508,3 +532,7 @@ When you see \(f(x) = x^2\), the derivative tells you the slope at any point: st
 ## Lab
 
 Companion notebook: [`app/math/01_functions.ipynb`](../../app/math/01_functions.ipynb)
+
+## Review
+
+Cheatsheet: [Functions — Cheatsheet](01-functions-cheatsheet.md)
