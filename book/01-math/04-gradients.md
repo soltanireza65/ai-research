@@ -19,6 +19,12 @@ After this chapter you will be able to:
 
 **Where this appears in AI:** `optimizer.zero_grad()`, `loss.backward()`, `optimizer.step()` is the training heartbeat. Adam, SGD, and every optimizer consumes gradients. Without the gradient, there is no automatic way to improve weights.
 
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](04-gradients-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
+
 ---
 
 ## 2. Intuition
@@ -73,6 +79,12 @@ Treat \(y\) as a constant. Compute the ordinary derivative with respect to \(x\)
 | \(\frac{\partial f}{\partial x}\) | Rate of change of \(f\) as \(x\) changes, \(y\) fixed |
 | \(\frac{\partial f}{\partial y}\) | Rate of change of \(f\) as \(y\) changes, \(x\) fixed |
 
+> **Plain English**
+> Change one variable a tiny bit while holding the others still — that is the partial derivative.
+
+> **Python**
+> `# treat other variables as constants when differentiating`
+
 ### Gradient
 
 For \(f: \mathbb{R}^n \to \mathbb{R}\):
@@ -82,6 +94,12 @@ For \(f: \mathbb{R}^n \to \mathbb{R}\):
 \]
 
 The **gradient** \(\nabla f\) (read "del f" or "nabla f") is a vector of all partial derivatives.
+
+> **Plain English**
+> Stack one sensitivity per input variable into a single arrow pointing uphill.
+
+> **Python**
+> `np.array([df_dx, df_dy, ...])`
 
 ### Gradient descent update
 
@@ -96,6 +114,12 @@ To **minimize** \(f\), iterate:
 | \(\mathbf{x}\) | Parameter vector (all weights stacked) |
 | \(\eta\) | **Learning rate** — step size (positive scalar) |
 | \(-\eta \nabla f\) | Move opposite to gradient (downhill) |
+
+> **Plain English**
+> Take a small step in the direction opposite to the gradient to lower the function value.
+
+> **Python**
+> `x = x - lr * grad`
 
 ### Jacobian (preview)
 
@@ -301,30 +325,15 @@ print(list(model.parameters()))  # weight ≈ 2, bias ≈ 0
 
 > 🧠 AI Insight
 >
-> Training is repeated gradient descent on a stochastic estimate of the true loss. Each mini-batch gives a noisy gradient — the average gradient over millions of examples is approximated by 32 or 256 examples. Noise helps escape shallow local minima.
+> **Gradient descent** moves parameters in the direction that **reduces** loss — opposite to the gradient. That is the core training idea. Optimizer names (Adam, SGD) and `loss.backward()` are previews until [Backpropagation](../03-neural-networks/03-backpropagation.md).
 
-**Loss landscape:** For a network with \(N\) parameters, the loss \(L(\theta_1, \ldots, \theta_N)\) is a function from \(\mathbb{R}^N\) to \(\mathbb{R}\). You cannot visualize it — but gradient descent still works locally.
+**Core for this chapter:** \(\nabla L\) points uphill on the loss surface; training steps downhill: \(\theta \leftarrow \theta - \eta \nabla L\).
 
-**Optimizers beyond vanilla SGD:**
-
-| Optimizer | Idea |
-|-----------|------|
-| SGD | \(\theta \leftarrow \theta - \eta \nabla L\) |
-| Momentum | Accumulate velocity — damp oscillation |
-| Adam | Per-parameter adaptive learning rates from gradient history |
-
-All consume gradients from `backward()`.
-
-**Vanishing/exploding gradients:** In deep networks, repeated chain rule multiplication can shrink or blow up gradients. Residual connections, layer normalization, and careful initialization mitigate this — topics for later neural network chapters.
-
-**`loss.backward()` internals (simplified):**
-
-1. Build computation graph during forward pass.
-2. Start at loss node with gradient 1.
-3. Walk backward applying chain rule to each operation.
-4. Accumulate `.grad` on each leaf parameter tensor.
-
-You rarely compute gradients by hand for real models — but understanding what they **mean** is essential for debugging training.
+> 📌 Preview — optional for now
+>
+> **Terms:** Adam, momentum, vanishing gradients  
+> **Learn properly in:** [Backpropagation](../03-neural-networks/03-backpropagation.md) and neural network chapters  
+> Skip optimizer comparison tables until then.
 
 ---
 
@@ -484,6 +493,18 @@ print(f"w≈{w:.2f}, b≈{b:.2f}, saved to {out}")
 - **Contour line** — curve where \(f\) is constant; gradient is perpendicular
 - **Critical point** — where gradient is zero (minimum, maximum, or saddle)
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Compute \(\partial f / \partial x\) and \(\partial f / \partial y\) for \(f(x,y) = x^2 + y^2\).
+2. Write the gradient descent update rule and explain the minus sign.
+3. Run a PyTorch snippet with `requires_grad=True` and read `.grad` after `backward()`.
+4. Describe what `optimizer.zero_grad()` prevents.
+5. Sketch or explain why the gradient points uphill on a contour plot.
+
+If any item is shaky, reread §3 and the [cheatsheet](04-gradients-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -499,3 +520,8 @@ Understanding matrices completes the core math toolkit for reading PyTorch code 
 ## Lab
 
 Companion notebook: [`app/math/04_gradients.ipynb`](../../app/math/04_gradients.ipynb)
+
+## Review
+
+- Cheatsheet: [Gradients — Cheatsheet](04-gradients-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

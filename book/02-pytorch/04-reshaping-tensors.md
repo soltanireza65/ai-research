@@ -2,7 +2,14 @@
 
 ## 1. Introduction
 
-Tensors arrive in one shape and models demand another. A batch of images might be `(64, 3, 224, 224)` but a linear layer expects `(64, 150528)`. Multi-head attention splits `(batch, seq, dim)` into `(batch, heads, seq, head_dim)`. Reshaping changes **how you interpret** the same numbers without copying data (when possible).
+Tensors arrive in one shape and models demand another. A batch of images might be `(64, 3, 224, 224)` but a linear layer expects `(64, 150528)`. Reshaping changes **how you interpret** the same numbers without copying data (when possible).
+
+> 📌 Preview — optional for now
+>
+> **Term:** multi-head attention reshape
+> **One line:** splits hidden size into parallel head subspaces
+> **Learn properly in:** [Multi-Head Attention](../04-transformers/03-multi-head-attention.md)
+> You can skip the details and keep reading.
 
 This chapter covers `reshape`, `view`, `flatten`, `unsqueeze`, and `squeeze` — the tools that bridge between layers with incompatible shape expectations. Getting reshape wrong is a silent bug: same numel, wrong semantics, garbage outputs.
 
@@ -11,13 +18,19 @@ After this chapter you will be able to:
 - Reshape tensors while preserving total element count.
 - Add and remove size-1 dimensions with `unsqueeze` and `squeeze`.
 - Choose between `view` and `reshape` safely.
-- Split and merge dimensions for multi-head attention patterns.
+- Split and merge dimensions for batched parallel patterns.
 
-**Where this appears in AI:** Flatten before the first linear layer in CNNs. Split embedding dim into heads in transformers. Add batch dimension for single-example inference. Reshape logits for cross-entropy loss.
+**Where this appears in AI:** Flatten before the first linear layer in CNNs. Add batch dimension for single-example inference.
 
 Reshape errors rarely crash training on the first batch — they often produce silently wrong shapes that propagate until a later layer fails. Building the habit of printing `.shape` after every reshape saves hours of debugging.
 
-The `-1` wildcard is convenient but hides arithmetic: if you reshape `(32, 768)` to `(32, 12, -1)` you implicitly require `768 / 12 = 64` per head. If hidden size is not divisible by head count, PyTorch raises an error — a useful guardrail in transformer configuration.
+The `-1` wildcard is convenient but hides arithmetic: if you reshape `(32, 768)` to `(32, 12, -1)` you implicitly require `768 / 12 = 64` per head. If hidden size is not divisible by head count, PyTorch raises an error — a useful guardrail when configuring model width.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](04-reshaping-tensors-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -37,7 +50,7 @@ The `-1` wildcard is convenient but hides arithmetic: if you reshape `(32, 768)`
 
 **unsqueeze** inserts a dimension of size 1 — like putting one egg in its own tiny box. **squeeze** removes size-1 dimensions — collapsing empty packaging.
 
-In transformers, hidden size 768 with 12 heads becomes 12 groups of 64: reshape `(batch, seq, 768)` → `(batch, seq, 12, 64)` → `(batch, 12, seq, 64)` for parallel head computation.
+A hidden vector of size 768 can be reshaped into 12 groups of 64 — same numbers, new interpretation (used later when splitting attention heads; see §7).
 
 > 🔬 Deep Dive
 >
@@ -55,6 +68,12 @@ Given tensor with numel \(N\), new shape \((d_0, \ldots, d_{k-1})\) must satisfy
 d_0 \times d_1 \times \cdots \times d_{k-1} = N
 \]
 
+> **Plain English**
+> You may regroup elements into new axes, but the total count of numbers cannot change.
+
+> **Python**
+> `assert x.numel() == torch.tensor(new_shape).prod()`
+
 Use `-1` for one inferred dimension: `reshape(2, -1)` lets PyTorch compute the missing size.
 
 ### unsqueeze
@@ -65,6 +84,12 @@ Insert a dimension of size 1 at position `dim`:
 \text{shape } (a, b) \xrightarrow{\text{unsqueeze}(0)} (1, a, b)
 \]
 
+> **Plain English**
+> Insert a length-1 axis so a vector can broadcast or batch with other tensors.
+
+> **Python**
+> `x.unsqueeze(0)`  # leading batch dim
+
 ### squeeze
 
 Remove all dimensions (or one specified dim) of size 1:
@@ -72,6 +97,12 @@ Remove all dimensions (or one specified dim) of size 1:
 \[
 \text{shape } (1, a, 1, b) \xrightarrow{\text{squeeze}} (a, b)
 \]
+
+> **Plain English**
+> Drop axes of size 1 — they carry no independent information.
+
+> **Python**
+> `x.squeeze()` or `x.squeeze(dim)`
 
 ---
 
@@ -107,7 +138,7 @@ t_safe = t.reshape(12)  # works — copies if needed
 print(t_safe.shape)
 ```
 
-### Multi-head split pattern
+### Multi-head split pattern (preview)
 
 ```python
 batch, seq, dim, heads = 2, 10, 768, 12
@@ -120,6 +151,8 @@ x_heads = x.reshape(batch, seq, heads, head_dim)
 x_heads = x_heads.permute(0, 2, 1, 3)  # (batch, heads, seq, head_dim)
 print(x_heads.shape)
 ```
+
+Full multi-head attention is covered in the transformers module; here the point is reshape + permute changing layout without changing data.
 
 ---
 
@@ -352,17 +385,32 @@ When reviewing pull requests that touch tensor shapes, ask two questions: does t
 
 4. Reshape `(4, 6)` to `(2, 3, 4)` without changing element order. Verify first and last elements match before/after flatten.
 5. Simulate CNN flatten: `(16, 512, 7, 7)` → `(16, 25088)`.
-6. Split `(2, 10, 768)` into `(2, 10, 12, 64)` for 12 heads.
-7. Explain when `reshape` copies data vs when it returns a view.
+6. Explain when `reshape` copies data vs when it returns a view.
 
 ### Hard
 
-8. Implement multi-head reshape + permute to get `(batch, heads, seq, head_dim)` from `(batch, seq, dim)`.
-9. Reshape logits `(8, 20, 1000)` and labels `(8, 20)` for cross-entropy on 160 tokens.
-10. Why does `x.reshape(-1)` always work but `x.reshape(3, -1)` might fail?
+7. Implement multi-head reshape + permute to get `(batch, heads, seq, head_dim)` from `(batch, seq, dim)` — describe steps only.
+8. Why does `x.reshape(-1)` always work but `x.reshape(3, -1)` might fail?
 
 ### Challenge
 
+> 📌 Preview — optional for now
+>
+> **Term:** multi-head split (12 heads × 64 dims)
+> **One line:** reshape hidden size into parallel head subspaces
+> **Learn properly in:** [Multi-Head Attention](../04-transformers/03-multi-head-attention.md)
+> You can skip the details and keep reading.
+
+9. Split `(2, 10, 768)` into `(2, 10, 12, 64)` for 12 heads, then permute to `(2, 12, 10, 64)`.
+
+> 📌 Preview — optional for now
+>
+> **Term:** cross-entropy reshape
+> **One line:** merge batch and sequence axes so loss sees one row per token
+> **Learn properly in:** [Probability](../01-math/06-probability.md)
+> You can skip the details and keep reading.
+
+10. Reshape logits `(8, 20, 1000)` and labels `(8, 20)` for cross-entropy on 160 tokens.
 11. **Shape debugger:** Function that takes tensor and target shape, validates numel, prints friendly error if invalid, else reshapes.
 12. **Head visualizer:** Random `(1, 8, 768)`, split into 12 heads, plot one head's 8×64 heatmap.
 
@@ -447,6 +495,17 @@ Following this checklist prevents the majority of silent reshape bugs in researc
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- Reshape preserves numel; semantics depend on axis meaning
+- Prefer `reshape` over `view` after transpose
+- `unsqueeze` / `squeeze` add or remove size-1 axes
+- Use `-1` for exactly one inferred dimension
+
+### Preview terms (optional until later)
+
+- Multi-head reshape, cross-entropy flattening — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key formulas
 
 | Op | Effect |
@@ -464,6 +523,18 @@ Following this checklist prevents the majority of silent reshape bugs in researc
 - **numel** — total elements (must preserve on reshape)
 - **head_dim** — dim per attention head after split
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Reshape `torch.arange(24)` to `(2, 3, 4)` and verify numel unchanged.
+2. Flatten `(16, 256, 7, 7)` to `(16, 12544)` for a linear layer.
+3. Add a batch dimension to a single `(3, 224, 224)` image.
+4. Explain why `view` may fail after `transpose` and how to fix it.
+5. Use `flatten(1)` instead of `view(-1)` when keeping batch axis 0.
+
+If any item is shaky, reread §3–§4 and the [cheatsheet](04-reshaping-tensors-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -477,3 +548,8 @@ Reshape reorganizes elements; **indexing and slicing** selects subsets without c
 ## Lab
 
 Companion notebook: [`app/pytorch/04_reshaping_tensors.ipynb`](../../app/pytorch/04_reshaping_tensors.ipynb)
+
+## Review
+
+- Cheatsheet: [Reshaping Tensors — Cheatsheet](04-reshaping-tensors-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

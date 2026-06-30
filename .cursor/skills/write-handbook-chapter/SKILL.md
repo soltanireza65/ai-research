@@ -7,14 +7,19 @@ description: Transform a notebook into a full 13-section textbook chapter in boo
 
 ## Workflow
 
-1. Read the companion notebook in `app/<module>/` and upstream source topics (do not copy prose).
-2. Extract **topics covered** — concepts, formulas, code patterns.
-3. Draft an outline mapping topics to all 13 sections before writing.
-4. Write section-by-section following the learning order: intuition → visual → code → notation → definition → exercises → AI.
-5. Embed ≥5 runnable Python (NumPy/Matplotlib) code blocks with explanations.
-6. Add mini-project spec; put solution sketch in `<details>` if needed.
-7. Run `just validate-book --chapter book/<path>.md` and fix all failures.
-8. Self-review against [reference.md](reference.md).
+1. Read [Vocabulary Roadmap](../../book/00-intro/04-vocabulary-roadmap.md) — know which terms are previews vs payoff chapters.
+2. Read the companion notebook in `app/<module>/` and upstream source topics (do not copy prose).
+3. Extract **topics covered** — concepts, formulas, code patterns.
+4. Draft an outline mapping topics to all 13 sections before writing.
+5. Write section-by-section following the learning order: intuition → visual → code → notation → definition → exercises → AI.
+6. For math chapters 01–04 and PyTorch chapters: use `📌 Preview — optional for now` for any ML term before its teaching chapter.
+7. After major formulas, add **Plain English** + **Python** callouts.
+8. Embed ≥5 runnable Python (NumPy/Matplotlib) code blocks with explanations.
+9. Add mini-project spec; put solution sketch in `<details>` if needed.
+10. Add chapter cheatsheet per [`cheatsheet-template.md`](../../book/_template/cheatsheet-template.md) and link from chapter footer.
+11. Add **Readiness checks** under §12 and **Suggested pacing** in §1.
+12. Run `just validate-book --chapter book/<path>.md` and fix all failures.
+13. Self-review against [reference.md](reference.md).
 
 ## Chapter mapping
 
@@ -35,7 +40,7 @@ description: Transform a notebook into a full 13-section textbook chapter in boo
 | `book/02-pytorch/07-special-tensors.md` | `app/pytorch/07_special_tensors.ipynb` |
 | `book/03-neural-networks/01-single-neuron.md` | `app/neural_networks/01_single_neuron.ipynb` |
 | `book/03-neural-networks/02-building-a-layer.md` | `app/neural_networks/02_building_a_layer.ipynb` |
-| `book/03-neural-networks/03-backpropagation.md` | (no notebook — use upstream article + videos) |
+| `book/03-neural-networks/03-backpropagation.md` | `app/neural_networks/03_backpropagation.ipynb` |
 | `book/04-transformers/01-attention-mechanism.md` | `app/transformers/01_attention_mechanism.ipynb` |
 | `book/04-transformers/02-self-attention.md` | `app/transformers/02_self_attention.ipynb` |
 | `book/04-transformers/03-multi-head-attention.md` | `app/transformers/03_multi_head_attention.ipynb` |

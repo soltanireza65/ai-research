@@ -9,7 +9,7 @@ uv sync
 just lab
 ```
 
-Open [`SUMMARY.md`](SUMMARY.md) and start with [How to Use This Handbook](00-intro/01-how-to-use-this-handbook.md).
+Open [`SUMMARY.md`](SUMMARY.md) and start with [How to Use This Handbook](00-intro/01-how-to-use-this-handbook.md). If AI jargon in early chapters worries you, read [Vocabulary Roadmap](00-intro/04-vocabulary-roadmap.md) first.
 
 ## Study workflow
 
@@ -18,8 +18,18 @@ For each chapter:
 1. **Read** the chapter markdown in `book/`
 2. **Run** the companion notebook in `app/` (`just lab`)
 3. **Experiment** — change values, break things, observe
-4. **Complete** exercises at the end of the chapter
-5. **Check off** the chapter in [`SUMMARY.md`](SUMMARY.md)
+4. **Complete** Easy exercises first (skip Challenge previews if needed)
+5. **Review** the chapter **cheatsheet** for retention
+6. **Check** readiness items in §12 Summary before moving on
+7. **Check off** the chapter in [`SUMMARY.md`](SUMMARY.md)
+
+If jargon appears too early, check [Vocabulary Roadmap](00-intro/04-vocabulary-roadmap.md) or `📌 Preview` boxes.
+
+**Weak math?** Start with [Math Basics](00-intro/05-math-basics.md) before Functions.
+
+**Module review:** Before starting Module 03, skim all Module 02 cheatsheets.
+
+§11 Interview Questions are **optional until Module 01 is complete**.
 
 ## Structure
 
@@ -43,6 +53,8 @@ Validate chapters with:
 just validate-book
 just validate-book --chapter book/01-math/01-functions.md
 ```
+
+**Module-aware rules:** early math (`01`–`04`) and PyTorch chapters require `📌 Preview` callouts when ML jargon appears in §1–§6. Cheatsheets are validated separately (min length, roadmap links, Stuck? line). Stubs in `05-future/` use `--include-stubs`. See [`scripts/validate_chapter.py`](../scripts/validate_chapter.py).
 
 ## Attribution
 

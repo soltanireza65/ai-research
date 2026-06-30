@@ -17,13 +17,15 @@ This chapter tells you exactly what is assumed, how to install the tooling, and 
 
 ### Who This Handbook Is For
 
-The ideal reader is an **experienced software engineer**:
+The ideal reader is a **programmer learning AI from the ground up**:
 
-- You have written Python for scripts, services, or data pipelines.
-- You may have used AI APIs or imported scikit-learn once, but you do not deeply understand what happens inside a neural network.
-- You have little or no formal background in calculus, linear algebra, or probability — or you learned it once and forgot it.
+- You write Python (scripts, apps, or automation) — self-taught or bootcamp is fine; a CS degree is **not** required.
+- You may have used AI APIs but do not deeply understand what happens inside a neural network.
+- You have little or no formal math — rusty high-school algebra, weak or forgotten trigonometry, no calculus — and that is **OK**.
 
-That profile is not a weakness. It is the **target audience** every chapter is written for. The handbook explains notation when it appears, maps formulas to Python, and connects each idea to AI applications. You are not expected to arrive already knowing what a Jacobian is.
+You might also be an experienced software engineer with the same math gaps. Either way, this book assumes **programming skill**, not **math credentials**. Every symbol is explained when it appears. If a term appears before it is taught, look for a `📌 Preview` box or check the [Vocabulary Roadmap](04-vocabulary-roadmap.md).
+
+That profile is not a weakness. It is the **target audience** every chapter is written for.
 
 > 💡 Intuition
 >
@@ -107,6 +109,7 @@ Patterns that help:
 2. **Code as ground truth** — if an equation is confusing, the Python equivalent in the same chapter is often clearer. Run it with small numbers.
 3. **Small steps** — Easy exercises exist so you can verify understanding before Medium and Hard tiers ask you to combine ideas.
 4. **Revisiting is normal** — chapter 4 makes more sense after chapter 6. That is intentional spiraling, not failure.
+5. **Use the vocabulary roadmap** — [Vocabulary Roadmap](04-vocabulary-roadmap.md) lists every jargon term and the chapter that teaches it. Unknown words in chapter 1 are previews, not failures.
 
 You are not trying to become a mathematician. You are trying to become an engineer who **reads** mathematical ideas confidently enough to implement and debug AI systems. That is a smaller, achievable goal.
 
@@ -120,9 +123,11 @@ A laptop with 8 GB RAM is sufficient for Part I. Training large models is not th
 - [ ] `uv sync` completed without errors
 - [ ] `just lab` opens JupyterLab with `app/` visible
 - [ ] You read [How to Use This Handbook](01-how-to-use-this-handbook.md) for the two-layer workflow
+- [ ] You read [Math Basics](05-math-basics.md) if school math feels rusty (recommended)
+- [ ] You read [Vocabulary Roadmap](04-vocabulary-roadmap.md) if AI jargon makes you anxious
 - [ ] You skimmed [`SUMMARY.md`](../SUMMARY.md) to see the full arc
 
-When all boxes are checked, open `book/01-math/01-functions.md` and its lab `app/math/01_functions.ipynb`.
+When all boxes are checked, open [Math Basics](05-math-basics.md) if needed, then `book/01-math/01-functions.md` and `app/math/01_functions.ipynb`.
 
 ## Summary
 
@@ -136,5 +141,7 @@ When all boxes are checked, open `book/01-math/01-functions.md` and its lab `app
 
 - [How to Use This Handbook](01-how-to-use-this-handbook.md) — study workflow and validation
 - [Learning Path](03-learning-path.md) — where prerequisites lead
+- [Math Basics](05-math-basics.md) — school math bridge before Chapter 1
+- [Vocabulary Roadmap](04-vocabulary-roadmap.md) — jargon term → teaching chapter
 - [uv documentation](https://docs.astral.sh/uv/) — package and environment management
 - [Python official tutorial](https://docs.python.org/3/tutorial/) — refresh language basics if needed

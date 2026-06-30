@@ -2,25 +2,29 @@
 
 ## 1. Introduction
 
-In the previous chapter you learned that a **function** is a rule: input in, output out. A neural network is a function. A loss function is a function. But training a model requires one more idea: **how sensitive is the output to a tiny change in the input (or in a weight)?**
+In the previous chapter you learned that a **function** is a rule: input in, output out. Training a model asks a follow-up question: **how sensitive is the output to a tiny change in the input (or in a weight)?**
 
 That sensitivity is measured by the **derivative**. The derivative answers: "If I nudge \(x\) a little, how much does \(f(x)\) move, and in which direction?"
 
-This is not abstract calculus trivia. It is the mathematical engine behind:
+**What you must learn in this chapter (core):**
 
-- **Gradient descent** — move weights in the direction that reduces loss.
-- **Backpropagation** — propagate sensitivity backward through composed layers.
-- **Learning rate tuning** — if derivatives are huge, steps overshoot; if tiny, training crawls.
+- Interpret the derivative as **instantaneous rate of change** and **tangent slope**
+- Compute simple derivatives using the **power rule** and **linearity**
+- Estimate derivatives numerically in Python (the same trick autograd uses internally)
+- Use the **chain rule** on composed functions like \((2x+1)^2\)
+- Read a derivative plot: where is the slope zero, positive, or negative?
 
-After this chapter you will be able to:
+**What you can skip for now (preview):**
 
-- Interpret the derivative as **instantaneous rate of change** and **tangent slope**.
-- Compute simple derivatives using the **power rule**.
-- Estimate derivatives numerically in Python (the same trick autograd uses internally).
-- Explain why derivatives of activation functions matter at every neuron.
-- Preview the **chain rule**, which makes deep learning optimization possible.
+Words like **ReLU**, **sigmoid**, **backpropagation**, and **`loss.backward()`** may appear as **preview labels** — a map of where the book goes, not a test of what you should already know. Skip any `📌 Preview` box and use the [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md) when a name bothers you.
 
-**Where this appears in AI:** Every call to `loss.backward()` in PyTorch computes derivatives (more precisely, gradients — the multivariate version in the next chapter). ReLU's derivative is 0 or 1. Sigmoid's derivative is largest near zero. Without derivatives, there is no learning.
+After this chapter you will **not** be expected to derive activation derivatives or run full backprop by hand. You **will** understand derivatives — the sensitivity engine behind gradient descent.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](02-derivatives-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -89,6 +93,12 @@ f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}
 
 If \(f'(x) > 0\), increasing \(x\) increases \(f(x)\). If \(f'(x) < 0\), increasing \(x\) decreases \(f(x)\). If \(f'(x) = 0\), you may be at a flat spot, peak, or valley.
 
+> **Plain English**
+> The derivative is the slope of the curve at one point — how steep it is right there.
+
+> **Python**
+> `slope = (f(x + h) - f(x - h)) / (2 * h)`  *(numerical estimate)*
+
 ### Power rule
 
 For any real exponent \(n\):
@@ -103,6 +113,12 @@ For any real exponent \(n\):
 - \(\frac{d}{dx}[x^3] = 3x^2\)
 - \(\frac{d}{dx}[x] = 1\)
 - \(\frac{d}{dx}[c] = 0\) for constant \(c\)
+
+> **Plain English**
+> Bring the exponent down as a multiplier, then reduce the exponent by one: \(x^3 \to 3x^2\).
+
+> **Python**
+> `# d/dx of x**3 → 3 * x**2`
 
 ### Linearity
 
@@ -121,6 +137,12 @@ If \(y = f(g(x))\), then:
 \]
 
 The outer function's derivative (evaluated at the inner output) times the inner function's derivative. This is the backbone of backpropagation — you will use it constantly once networks have more than one layer.
+
+> **Plain English**
+> Differentiate the outer layer, then multiply by the derivative of the inner layer.
+
+> **Python**
+> `# dy/dx = outer_prime(inner(x)) * inner_prime(x)`
 
 ---
 
@@ -295,7 +317,14 @@ At \(x = 1\): \(\frac{dy}{dx} = 4 \times 3 = 12\).
 
 This is exactly what backprop does: multiply local derivatives along the path from output to input.
 
-### Example 5: ReLU derivative (piecewise)
+### Example 5: ReLU derivative (optional preview)
+
+> 📌 Preview — optional for now
+>
+> **Term:** ReLU  
+> **One line:** `max(0, x)` — activation used in neurons  
+> **Learn properly in:** [Single Neuron](../03-neural-networks/01-single-neuron.md)  
+> This example connects derivatives to a name you saw in Functions. Skip if overwhelming.
 
 \[
 \text{ReLU}(x) = \max(0, x)
@@ -322,17 +351,16 @@ Neurons on the "active" side (\(x > 0\)) pass gradients through; inactive neuron
 
 > 🧠 AI Insight
 >
-> Training minimizes a loss function \(L(\theta)\) where \(\theta\) represents all weights. The derivative \(\frac{dL}{d\theta_i}\) tells you: "If I increase weight \(\theta_i\) slightly, does loss go up or down?" Update rule: \(\theta_i \leftarrow \theta_i - \eta \frac{dL}{d\theta_i}\) where \(\eta\) is the learning rate.
+> A derivative measures **sensitivity**: nudge an input (or weight) slightly — how much does the output move? Training uses that idea to reduce error. You do not need the full training story yet.
 
-**Single weight, single data point:** Suppose prediction \(\hat{y} = w x\) and squared error \(L = (y - wx)^2\). Then:
+**Core for this chapter:** if \(L(w)\) is loss and \(w\) is a weight, \(\frac{dL}{dw}\) tells you which direction changes \(w\) to increase or decrease loss. The sign tells you which way to move.
 
-\[
-\frac{dL}{dw} = -2x(y - wx)
-\]
-
-If the prediction is too low (\(y > wx\)), the derivative is negative — increasing \(w\) reduces loss. The math matches intuition.
-
-**Backpropagation** applies the chain rule layer by layer:
+> 📌 Preview — optional for now
+>
+> **Term:** backpropagation / `loss.backward()`  
+> **One line:** chain rule applied to all layers to get every gradient  
+> **Learn properly in:** [Backpropagation](../03-neural-networks/03-backpropagation.md)  
+> You can skip the diagram below until then.
 
 ```
 input → layer1 → layer2 → ... → loss
@@ -340,17 +368,11 @@ input → layer1 → layer2 → ... → loss
       ∂L/∂W1   ∂L/∂W2         starting point
 ```
 
-Each layer asks: "How much did my output change, and how much did that affect the final loss?"
-
-**Activation derivatives shape learning:**
-
-| Activation | Derivative (informally) | Effect |
-|------------|-------------------------|--------|
-| ReLU | 0 or 1 | Dead neurons (always ≤ 0 input) get zero gradient |
-| Sigmoid | \(\sigma(x)(1-\sigma(x))\), max 0.25 | Vanishing gradients in deep sigmoid networks |
-| Tanh | \(1 - \tanh^2(x)\) | Similar vanishing issue |
-
-When you call `tensor.backward()` in PyTorch, the framework walks the computation graph backward, multiplying local derivatives — chain rule at scale.
+> 📌 Preview — optional for now
+>
+> **Terms:** ReLU / sigmoid activation derivatives  
+> **Learn properly in:** [Single Neuron](../03-neural-networks/01-single-neuron.md) and [Derivatives](02-derivatives.md) worked example 5 (optional)  
+> Skip the activation derivative table until you have learned activations.
 
 ---
 
@@ -394,14 +416,17 @@ When you call `tensor.backward()` in PyTorch, the framework walks the computatio
 
 ### Hard
 
-9. The sigmoid is \(\sigma(x) = 1/(1 + e^{-x})\). Without deriving the full formula, explain why \(\sigma'(x)\) is largest near \(x = 0\) and near zero when \(|x|\) is large.
-10. For loss \(L(w) = (y - wx)^2\) with \(y = 5\), \(x = 2\), find \(\frac{dL}{dw}\) when \(w = 1\). Should you increase or decrease \(w\)?
-11. Plot the ReLU function and its derivative (use \(x = 0.001\) and \(x = -0.001\) to approximate the derivative at 0). Label regions where gradient is blocked.
+9. For loss \(L(w) = (y - wx)^2\) with \(y = 5\), \(x = 2\), find \(\frac{dL}{dw}\) when \(w = 1\). Should you increase or decrease \(w\)?
 
-### Challenge
+### Challenge (optional — includes ML previews)
+
+10. *(Optional)* The sigmoid is \(\sigma(x) = 1/(1 + e^{-x})\). Without deriving the full formula, explain why \(\sigma'(x)\) is largest near \(x = 0\) and near zero when \(|x|\) is large. Preview: [Single Neuron](../03-neural-networks/01-single-neuron.md)
+
+11. *(Optional)* Plot the ReLU function and its derivative (use \(x = 0.001\) and \(x = -0.001\) to approximate the derivative at 0). Label regions where gradient is blocked. Preview: [Single Neuron](../03-neural-networks/01-single-neuron.md)
 
 12. **Numerical vs analytical:** Implement \(f(x) = x^5 - 2x^2 + 1\). Compute \(f'(x)\) analytically and compare to `numerical_derivative` at 10 random points. Plot the error \(|f'_{\text{num}} - f'_{\text{exact}}|\) as a function of step size \(h\) on a log scale.
-13. **Tiny backprop by hand:** For \(L = (y - w_2 \cdot \text{ReLU}(w_1 x))^2\) with \(x=2\), \(y=3\), \(w_1=1\), \(w_2=0.5\), compute \(\partial L / \partial w_2\) and \(\partial L / \partial w_1\) using the chain rule. Verify with PyTorch autograd.
+
+13. *(Optional)* **Tiny backprop by hand:** For \(L = (y - w_2 \cdot \text{ReLU}(w_1 x))^2\) with \(x=2\), \(y=3\), \(w_1=1\), \(w_2=0.5\), compute \(\partial L / \partial w_2\) and \(\partial L / \partial w_1\) using the chain rule. Verify with PyTorch autograd. Preview: [Backpropagation](../03-neural-networks/03-backpropagation.md)
 
 ---
 
@@ -411,7 +436,7 @@ When you call `tensor.backward()` in PyTorch, the framework walks the computatio
 
 Build a script that:
 
-1. Accepts a list of functions (at least: \(x^2\), \(x^3\), \(2x + 1\), \(\sin(x)\)).
+1. Accepts a list of functions (at least: \(x^2\), \(x^3\), \(2x + 1\), \(|x|\)).
 2. Plots each function and its analytical derivative side by side.
 3. Draws tangent lines at three user-chosen \(x\) values.
 4. Prints a table comparing numerical vs analytical derivative at those points.
@@ -502,6 +527,18 @@ print(f"Saved to {out}")
 - **Secant line** — line through two points; slope is average rate of change
 - **Autograd** — automatic computation of derivatives in frameworks like PyTorch
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. State the power rule and apply it to \(x^4\) and \(5x^3\).
+2. Explain the difference between \(f(x)\) and \(f'(x)\) in plain language.
+3. Implement `numerical_derivative` and verify it on \(f(x) = 2x\) at any point.
+4. Use the chain rule to differentiate \((x^2 + 1)^3\) (or an equivalent composed function).
+5. Read a plot of \(f'(x)\) and say where the original function is increasing, decreasing, or flat.
+
+If any item is shaky, reread §3 and the [cheatsheet](02-derivatives-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -517,3 +554,8 @@ The next chapter — **Vectors** — introduces magnitude, addition, dot product
 ## Lab
 
 Companion notebook: [`app/math/02_derivatives.ipynb`](../../app/math/02_derivatives.ipynb)
+
+## Review
+
+- Cheatsheet: [Derivatives — Cheatsheet](02-derivatives-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

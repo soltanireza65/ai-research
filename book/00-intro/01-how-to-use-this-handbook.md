@@ -49,10 +49,32 @@ For each chapter, follow this loop until the ideas feel natural:
 1. **Read** the chapter markdown in `book/`. Do not skim the intuition sections; they exist because formal notation comes later.
 2. **Run** the companion notebook via `just lab` (see [Prerequisites](02-prerequisites.md) for setup).
 3. **Experiment** — change learning rates, swap activation functions, plot different ranges. Break things on purpose and observe what fails.
-4. **Complete** the exercises at the end of the chapter. Start with Easy; do not skip to Hard until Medium feels routine.
-5. **Check off** the chapter in [`SUMMARY.md`](../SUMMARY.md) so you can see progress across the full arc.
+4. **Complete** Easy exercises first, then Medium. Skip Challenge items marked `📌 Preview` until later.
+5. **Review** the chapter **cheatsheet** (linked in the chapter footer) to lock in key ideas.
+6. **Check** the **Readiness checks** in §12 before starting the next chapter.
+7. **Check off** the chapter in [`SUMMARY.md`](../SUMMARY.md) so you can see progress across the full arc.
+
+§11 **Interview Questions** are optional until you finish **Module 01** (Math).
+
+**Weak or forgotten school math?** Complete [Math Basics](05-math-basics.md) before [Functions](../01-math/01-functions.md).
+
+**Before Module 03:** skim all Module 02 (PyTorch) cheatsheets as a module review.
 
 A single pass is rarely enough. Revisit chapters after you learn related material: derivatives make more sense after gradients; matrix multiplication clicks harder after you have built a layer. Spaced repetition is built into the curriculum — later parts explicitly reference earlier ones.
+
+### When you feel lost
+
+If you hit a word like **sigmoid**, **ReLU**, or **backprop** and think *I should already know this* — stop. You are not behind.
+
+1. Look for a **`📌 Preview — optional for now`** box in the chapter. You may skip it.
+2. Open the [Vocabulary Roadmap](04-vocabulary-roadmap.md) — one-line meaning + which chapter teaches it properly.
+3. Read the chapter [cheatsheet](../01-math/01-functions-cheatsheet.md) if one exists (see footer of each chapter).
+4. Finish the **core** material (Intuition through Worked Examples). Return to previews later.
+5. Do **Easy** exercises only until Medium feels comfortable.
+
+> 📌 Preview — optional for now
+>
+> Early math chapters (Functions through Gradients) **name** AI terms before explaining them. That is a map of the journey, not a test. Chapter 1 teaches functions — not sigmoid.
 
 > ⚠️ Common Mistake
 >
@@ -105,7 +127,7 @@ This handbook is personal by default, but the two-layer model scales to study gr
 ## Summary
 
 - The handbook uses a **two-layer model**: `book/` for textbook depth, `app/` for runnable labs.
-- Follow the **read → run → experiment → exercise → check off** workflow for every chapter.
+- Follow the **read → run → experiment → exercise → cheatsheet → readiness → check off** workflow for every chapter.
 - Authors and agents should follow **`.cursor/rules/handbook-textbook.mdc`** and **`write-handbook-chapter`** skill conventions.
 - Run **`just validate-book`** (optionally with `--chapter`) before treating a chapter as finished.
 - Track progress in **`book/SUMMARY.md`** and start with [Prerequisites](02-prerequisites.md) if you have not set up the environment yet.
@@ -114,5 +136,7 @@ This handbook is personal by default, but the two-layer model scales to study gr
 
 - [Prerequisites](02-prerequisites.md) — environment setup and assumed background
 - [Learning Path](03-learning-path.md) — full 0→100 curriculum arc
+- [Vocabulary Roadmap](04-vocabulary-roadmap.md) — when jargon appears before it is taught
+- [Math Basics](05-math-basics.md) — school math bridge before Chapter 1
 - [`book/README.md`](../README.md) — quick start and repository structure
 - [Become Elite AI Researcher](https://github.com/vukrosic/become-elite-ai-researcher) — upstream reference curriculum

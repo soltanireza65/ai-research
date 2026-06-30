@@ -4,20 +4,33 @@
 
 Matrix multiplication has strict shape rules. Often the numbers you have are oriented the wrong way — rows where columns should be, batch axes in the wrong order. **Transposing** swaps dimensions: rows become columns, leading axes move to the back. In PyTorch, `.T` or `.transpose()` does this in one line.
 
-You cannot read transformer code without transpose: `scores = Q @ K.transpose(-2, -1)`. You cannot debug linear layers without knowing weights are stored as `(out, in)` while inputs arrive as `(batch, in)`. Transpose is the shape-fixing tool that makes matmul work.
+> 📌 Preview — optional for now
+>
+> **Term:** attention (`Q @ K.T`)
+> **One line:** compares each query vector to each key vector via dot products
+> **Learn properly in:** [Self-Attention](../04-transformers/02-self-attention.md)
+> You can skip the details and keep reading.
+
+You cannot read modern sequence-model code without transpose — it is the shape-fixing tool that makes matmul work when weight layout and input layout disagree.
 
 After this chapter you will be able to:
 
 - Transpose 2D matrices with `.T` and general tensors with `.transpose()` / `.permute()`.
 - Predict the shape after any transpose operation.
-- Use transpose correctly in attention and linear layer code.
+- Use transpose correctly in linear layer and batched matmul code.
 - Distinguish `.T` from `.reshape()` and `.view()`.
 
-**Where this appears in AI:** Attention computes `Q @ K^T`. Weight matrices are transposed in `F.linear`. Loss functions compare predictions and targets with different orientations. Convolution and batch normalization use permute to switch between `NCHW` and `NHWC` layouts.
+**Where this appears in AI:** Weight matrices are transposed in `F.linear`. Loss functions compare predictions and targets with different orientations. Convolution and batch normalization use permute to switch between `NCHW` and `NHWC` layouts.
 
 Transpose is not "advanced math" — it is bookkeeping. Models store parameters in one layout; equations assume another. Transpose is the adapter between them, like converting JSON keys from camelCase to snake_case before two APIs can talk.
 
 When reading a paper that writes \(W^\top x\), the authors assume column vectors. PyTorch uses row batches `(batch, features)` and stores weights as `(out, in)`, so the implemented multiply is `x @ W.T`. Same mathematics, different storage convention — transpose bridges the gap.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](03-transposing-tensors-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -37,7 +50,7 @@ When reading a paper that writes \(W^\top x\), the authors assume column vectors
 
 Element at position \((i, j)\) in \(A\) moves to \((j, i)\) in \(A^\top\).
 
-In attention, each **row** of \(Q\) is one token's query vector. Each **row** of \(K\) is one token's key vector. To compare query \(i\) with key \(j\), we need dot products between rows of \(Q\) and rows of \(K\). That is `Q @ K.T`: rows of \(Q\) dot rows of \(K^\top\) (which are columns of \(K\)).
+For batched matmul, you often transpose the last two axes so inner dimensions align — the same mechanical step used later in attention (see §7).
 
 > 🔬 Deep Dive
 >
@@ -55,6 +68,12 @@ If \(A\) has shape \((m, n)\), then \(A^\top\) (or `A.T`) has shape \((n, m)\):
 (A^\top)_{ij} = A_{ji}
 \]
 
+> **Plain English**
+> Flip the matrix along its main diagonal — rows become columns.
+
+> **Python**
+> `A.T` or `A.transpose(0, 1)`
+
 ### General transpose
 
 For a tensor with shape \((d_0, d_1, \ldots, d_{k-1})\), swapping dimensions \(a\) and \(b\):
@@ -66,6 +85,12 @@ For a tensor with shape \((d_0, d_1, \ldots, d_{k-1})\), swapping dimensions \(a
 ### permute
 
 `.permute(i, j, k, ...)` reorders **all** dimensions at once. If `x.shape == (2, 3, 4)`:
+
+> **Plain English**
+> `permute` is a full shuffle of axes — every dimension gets a new position in the shape tuple.
+
+> **Python**
+> `x.permute(2, 0, 1)  # shape (4, 2, 3)`
 
 ```python
 x.permute(2, 0, 1)  # shape (4, 2, 3)
@@ -99,18 +124,17 @@ swapped = batch.transpose(-2, -1)  # (4, 3, 2) — swap last two dims
 print(batch.shape, "->", swapped.shape)
 ```
 
-### Attention-style transpose
+### Batched matmul transpose pattern
 
 ```python
 Q = torch.randn(2, 8, 64)  # batch=2, seq=8, dim=64
 K = torch.randn(2, 8, 64)
-scores = Q @ K.transpose(-2, -1)  # (2, 8, 8)
+Kt = K.transpose(-2, -1)     # (2, 64, 8)
+scores = Q @ Kt              # (2, 8, 8)
 print(scores.shape)
 ```
 
-`K.transpose(-2, -1)` turns `(2, 8, 64)` into `(2, 64, 8)` — wait, that's wrong!
-
-Actually: `K` is `(2, 8, 64)`. `K.transpose(-2, -1)` swaps dims -2 and -1: `(2, 64, 8)`. Then `Q @ K.T` would be `(2, 8, 64) @ (2, 64, 8)` — batch matmul gives `(2, 8, 8)`. Correct.
+`K.transpose(-2, -1)` swaps the last two axes so batch matmul inner dimensions align.
 
 ---
 
@@ -189,7 +213,7 @@ A = torch.tensor([[1., 2.], [2., 3.]])
 print(torch.allclose(A, A.T))  # True
 ```
 
-### Example 5: Step-by-step attention transpose
+### Example 5: Step-by-step batched transpose for matmul
 
 Consider `Q` and `K` with shape `(batch=2, seq=4, d_k=3)`:
 
@@ -208,7 +232,7 @@ print("scores:", scores.shape)  # (2, 4, 4)
 
 **Step 2:** `transpose(-2, -1)` swaps seq and feature → `(2, 3, 4)`.
 
-**Step 3:** Batch matmul `(2, 4, 3) @ (2, 3, 4)` → `(2, 4, 4)`. Entry `(b, i, j)` is the dot product between query token `i` and key token `j` in batch `b`.
+**Step 3:** Batch matmul `(2, 4, 3) @ (2, 3, 4)` → `(2, 4, 4)`. Entry `(b, i, j)` is the dot product between row `i` of `Q` and column `j` of the transposed `K` in batch `b`.
 
 ### Example 6: permute for NCHW → NHWC
 
@@ -230,7 +254,7 @@ rhs = B.T @ A.T
 print(torch.allclose(lhs, rhs, atol=1e-5))
 ```
 
-This identity is used when deriving backprop rules for weight gradients in linear layers.
+This identity is used when deriving gradient rules for weight matrices in linear layers (preview: backpropagation module).
 
 Transposing is inexpensive when implemented as a view, but the next operation may force a contiguous copy — profile before optimizing.
 
@@ -292,19 +316,26 @@ When debugging transpose bugs, print shapes **before and after** each operation 
 
 ### Medium
 
-4. Given `Q`, `K` both `(2, 10, 32)`, compute attention scores of shape `(2, 10, 10)`.
-5. `x` is `(batch, features)`. `W` is `(out, features)`. Write the matmul using `@` and `.T`.
-6. Permute `(2, 3, 4, 5)` to `(5, 4, 3, 2)` using `.permute()`.
-7. After `x.transpose(1, 2)`, explain why `x.view(-1)` might fail and how `.contiguous()` helps.
+4. `x` is `(batch, features)`. `W` is `(out, features)`. Write the matmul using `@` and `.T`.
+5. Permute `(2, 3, 4, 5)` to `(5, 4, 3, 2)` using `.permute()`.
+6. After `x.transpose(1, 2)`, explain why `x.view(-1)` might fail and how `.contiguous()` helps.
 
 ### Hard
 
-8. Show that `(AB)^T = B^T A^T` with random `(3, 4)` and `(4, 5)` matrices in PyTorch.
-9. Implement batched `K.transpose(-2, -1)` for `K` shape `(8, 12, 64)` and verify output shape `(8, 64, 12)`.
-10. When would a weight matrix be symmetric in a neural network? Give one example or explain why it is rare.
+7. Show that `(AB)^T = B^T A^T` with random `(3, 4)` and `(4, 5)` matrices in PyTorch.
+8. Implement batched `K.transpose(-2, -1)` for `K` shape `(8, 12, 64)` and verify output shape `(8, 64, 12)`.
+9. When would a weight matrix be symmetric in a neural network? Give one example or explain why it is rare.
 
 ### Challenge
 
+> 📌 Preview — optional for now
+>
+> **Term:** attention scores
+> **One line:** matrix of query–key dot products before softmax
+> **Learn properly in:** [Self-Attention](../04-transformers/02-self-attention.md)
+> You can skip the details and keep reading.
+
+10. Given `Q`, `K` both `(2, 10, 32)`, compute attention scores of shape `(2, 10, 10)`.
 11. **Attention score heatmap:** Random `Q`, `K` with 8 tokens, 16 dims. Compute scores, plot as 8×8 heatmap. Label axes "query token" and "key token".
 12. **Layout converter:** Function `nchw_to_nhwc(t)` and inverse using only `permute`.
 
@@ -387,6 +418,17 @@ Each transpose is purposeful — it places `num_heads` next to batch for paralle
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- `.T` swaps rows and columns on 2D; on 3D+ use explicit `.transpose(d0, d1)`
+- `permute` reorders all axes at once
+- Transpose can make tensors non-contiguous — use `.contiguous()` before `.view()`
+- `(AB)^T = B^T A^T`
+
+### Preview terms (optional until later)
+
+- Attention `K.T`, embeddings layout, backprop through transpose — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key formulas
 
 | Operation | Shape change |
@@ -403,6 +445,18 @@ Each transpose is purposeful — it places `num_heads` next to batch for paralle
 - **Contiguous** — memory layout matches logical order
 - ** strides** — step sizes for each dimension in memory
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Transpose a `(3, 5)` matrix and state the new shape.
+2. Explain why `K.transpose(-2, -1)` is preferred over `K.T` on 3D tensors.
+3. Use `permute` to convert `(N, C, H, W)` to `(N, H, W, C)`.
+4. Fix `x @ W` when `W` is stored as `(out, in)` and `x` is `(batch, in)`.
+5. Describe when `.contiguous()` is needed after transpose.
+
+If any item is shaky, reread §3–§4 and the [cheatsheet](03-transposing-tensors-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -416,3 +470,8 @@ Transpose swaps axes but keeps the same total number of elements. Often you need
 ## Lab
 
 Companion notebook: [`app/pytorch/03_transposing_tensors.ipynb`](../../app/pytorch/03_transposing_tensors.ipynb)
+
+## Review
+
+- Cheatsheet: [Transposing Tensors — Cheatsheet](03-transposing-tensors-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

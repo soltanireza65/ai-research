@@ -14,7 +14,20 @@ After this chapter you will be able to:
 - Understand the **dot product** as a measure of alignment (preview for similarity search and attention scores).
 - Connect vectors to **embeddings**, weight rows, and activations in PyTorch.
 
-**Where this appears in AI:** `nn.Embedding` stores a table of vectors — one per token. Each row of a weight matrix is a vector. Attention computes dot products between query and key vectors. Gradient descent updates are vectors of parameter changes. If you can read vectors, you can read half of a transformer paper.
+**Where this appears in AI (preview):** Vectors appear in embeddings and attention — you will learn those words properly in [Vectors preview →](../00-intro/04-vocabulary-roadmap.md) later chapters. **Core now:** magnitude, addition, dot product as algebra.
+
+> 📌 Preview — optional for now
+>
+> **Term:** embedding  
+> **One line:** a vector representing a token or category  
+> **Learn properly in:** [Vectors](03-vectors.md) (this chapter) + transformers later  
+> You can skip until §7 if the word appeared too early.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](03-vectors-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -90,6 +103,12 @@ For a 2D vector \(\mathbf{v} = [3, 4]\):
 
 This is the Pythagorean theorem: the length of the hypotenuse.
 
+> **Plain English**
+> Square each component, add them up, then take the square root — that is the vector's length.
+
+> **Python**
+> `np.linalg.norm(v)`
+
 ### Unit vector
 
 A **unit vector** has length 1. Normalize by dividing by the norm:
@@ -112,6 +131,12 @@ c \mathbf{v} = [c v_1, c v_2, \ldots, c v_n]
 
 Scalar \(c\) stretches or flips the vector. \(c = -1\) reverses direction.
 
+> **Plain English**
+> Add matching components one by one; multiply every component by the same scalar.
+
+> **Python**
+> `u + v` and `c * v`
+
 ### Dot product (preview)
 
 For \(\mathbf{u}, \mathbf{v} \in \mathbb{R}^n\):
@@ -121,6 +146,12 @@ For \(\mathbf{u}, \mathbf{v} \in \mathbb{R}^n\):
 \]
 
 Geometric meaning: \(\mathbf{u} \cdot \mathbf{v} = \|\mathbf{u}\| \|\mathbf{v}\| \cos\theta\) where \(\theta\) is the angle between them. Large positive dot product → vectors point similar directions. Zero → perpendicular (orthogonal). Negative → opposite directions.
+
+> **Plain English**
+> Multiply matching components and add the products — one number that measures how aligned two vectors are.
+
+> **Python**
+> `np.dot(u, v)` or `u @ v`
 
 ---
 
@@ -466,6 +497,18 @@ print(f"Saved to {out}")
 - **Dot product** — sum of products of corresponding components; measures alignment
 - **Embedding** — learned vector representation of a discrete object (token, user, item)
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Compute \(\|[3, 4]\|\) by hand and verify with `np.linalg.norm`.
+2. Add two 3D vectors component-wise and explain what vector addition means geometrically.
+3. Compute a dot product by hand for 2D vectors and interpret the sign.
+4. Normalize a vector to unit length in Python.
+5. Explain why `u.shape` must match `v.shape` before adding.
+
+If any item is shaky, reread §3 and the [cheatsheet](03-vectors-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -481,3 +524,8 @@ After gradients, **Matrices** show how to apply linear transformations to many v
 ## Lab
 
 Companion notebook: [`app/math/03_vectors.ipynb`](../../app/math/03_vectors.ipynb)
+
+## Review
+
+- Cheatsheet: [Vectors — Cheatsheet](03-vectors-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

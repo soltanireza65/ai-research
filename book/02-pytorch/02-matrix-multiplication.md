@@ -2,7 +2,21 @@
 
 ## 1. Introduction
 
-If creating tensors is step zero, **matrix multiplication** is step one of every neural network forward pass. A linear layer computes `y = x @ W.T + b`. Attention computes `scores = Q @ K.T`. Backpropagation chains matrix multiplies in reverse. No operation appears more often in deep learning code.
+If creating tensors is step zero, **matrix multiplication** is step one of every neural network forward pass. A linear layer computes `y = x @ W.T + b`.
+
+> 📌 Preview — optional for now
+>
+> **Term:** attention (`Q @ K.T`)
+> **One line:** compares query vectors to key vectors via dot products
+> **Learn properly in:** [Attention Mechanism](../04-transformers/01-attention-mechanism.md)
+> You can skip the details and keep reading.
+
+> 📌 Preview — optional for now
+>
+> **Term:** backpropagation
+> **One line:** applies the chain rule to compute gradients through composed layers
+> **Learn properly in:** [Backpropagation](../03-neural-networks/03-backpropagation.md)
+> You can skip the details and keep reading.
 
 You learned matrices in the math module: rows and columns, dot products, the rule that columns of the first matrix must match rows of the second. PyTorch expresses all of this with `@` (or `torch.matmul`). This chapter makes that notation automatic — including the **batch** case where you multiply stacks of matrices at once.
 
@@ -13,9 +27,15 @@ After this chapter you will be able to:
 - Perform batch matrix multiplication for neural network layers.
 - Implement a linear layer from scratch using `@`.
 
-**Where this appears in AI:** Every `nn.Linear` layer is matrix multiplication. Transformer attention is matrix multiplication. Convolution can be rewritten as matrix multiplication. Optimization updates weights with element-wise ops, but forward and backward passes are dominated by matmul.
+**Where this appears in AI:** Every `nn.Linear` layer is matrix multiplication. Convolution can be rewritten as matrix multiplication. Optimization updates weights with element-wise ops, but forward and backward passes are dominated by matmul.
 
-If you have written SQL joins or nested loops over rows and columns, you already understand the *pattern*: combine one row with one column at a time, accumulate a sum. Matrix multiplication is that pattern vectorized — thousands of dot products in one GPU call. Shape discipline at this step prevents most downstream training bugs.
+If nested loops over rows and columns feel familiar, you already understand the *pattern*: combine one row with one column at a time, accumulate a sum. Matrix multiplication is that pattern vectorized — thousands of dot products in one GPU call. Shape discipline at this step prevents most downstream training bugs.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](02-matrix-multiplication-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -48,11 +68,33 @@ In a neural network, an input vector \(x\) of length \(n\) times a weight matrix
 
 ### Matrix multiplication
 
-Given \(A \in \mathbb{R}^{m \times n}\) and \(B \in \mathbb{R}^{n \times p}\), the product \(C = AB\) has shape \(m \times p\). Each entry:
+Given \(A \in \mathbb{R}^{m \times n}\) and \(B \in \mathbb{R}^{n \times p}\), the product \(C = AB\) has shape \(m \times p\).
+
+**2×2 numeric example** (before the general formula):
+
+\[
+A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}, \quad
+B = \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}
+\]
+
+| Output cell | Calculation | Value |
+|-------------|-------------|-------|
+| \(C_{00}\) (row 0 · col 0) | \(1 \cdot 5 + 2 \cdot 7\) | 19 |
+| \(C_{01}\) (row 0 · col 1) | \(1 \cdot 6 + 2 \cdot 8\) | 22 |
+| \(C_{10}\) (row 1 · col 0) | \(3 \cdot 5 + 4 \cdot 7\) | 43 |
+| \(C_{11}\) (row 1 · col 1) | \(3 \cdot 6 + 4 \cdot 8\) | 50 |
+
+Each entry is one dot product: row \(i\) of \(A\) with column \(j\) of \(B\). The general rule:
 
 \[
 C_{ij} = \sum_{k=1}^{n} A_{ik} B_{kj}
 \]
+
+> **Plain English**
+> To fill cell \((i,j)\), multiply matching entries from row \(i\) of \(A\) and column \(j\) of \(B\), then add the products.
+
+> **Python**
+> `C[i, j] = (A[i, :] * B[:, j]).sum()`
 
 - \(A_{ik}\) — element in row \(i\), column \(k\) of \(A\)
 - \(B_{kj}\) — element in row \(k\), column \(j\) of \(B\)
@@ -65,6 +107,12 @@ C_{ij} = \sum_{k=1}^{n} A_{ik} B_{kj}
 \[
 y = x W^\top + b
 \]
+
+> **Plain English**
+> For each output neuron, take a weighted sum of all inputs (using one row of \(W\)), then add that neuron's bias.
+
+> **Python**
+> `y = x @ W.T + b`
 
 - \(x\) — input row vector, shape \((1, n)\) or batch \((B, n)\)
 - \(W\) — weights, shape \((m, n)\)
@@ -204,11 +252,11 @@ print((X @ W.T).shape)  # torch.Size([3, 5])
 
 Always trace shapes: `(batch, in) @ (in, out).T` or `(batch, in) @ (out, in).T` depending on weight layout.
 
-### Example 3: Batch matmul for attention-style scores
+### Example 3: Batch matmul for batched dot products
 
-Query \(Q\): `(2, 3, 4)` — 2 heads, 3 tokens, 4 dims. Key \(K\): `(2, 3, 4)`.
+Query \(Q\): `(2, 3, 4)` — 2 stacks, 3 tokens, 4 dims. Key \(K\): `(2, 3, 4)`.
 
-Scores: `(2, 3, 4) @ (2, 4, 3)` if we transpose keys — simplified 2-head case:
+Scores: `(2, 3, 4) @ (2, 4, 3)` if we transpose keys — simplified 2-stack case:
 
 ```python
 Q = torch.randn(2, 3, 8)   # 2 heads, 3 tokens, 8 dims
@@ -217,7 +265,7 @@ scores = Q @ K.transpose(-2, -1)  # (2, 3, 3) — each token vs each token
 print(scores.shape)  # torch.Size([2, 3, 3])
 ```
 
-This is the core of scaled dot-product attention (covered in the transformers module).
+This batched dot-product pattern is the mechanical core of scaled dot-product attention (covered in the transformers module).
 
 ### Example 4: Full mini forward pass
 
@@ -297,13 +345,21 @@ Two matrix multiplies, one ReLU — a tiny MLP.
 
 ### Hard
 
-9. Simulate attention scores: `Q`, `K` shape `(1, 8, 64)` (1 head, 8 tokens, 64 dims). Compute `(1, 8, 8)` score matrix.
-10. Why does `torch.matmul` broadcast `(B, n, m) @ (m, p)` to `(B, n, p)`? Create an example.
-11. Count total multiply-adds in `x @ W.T` for `x` shape `(B, d_in)`, `W` shape `(d_out, d_in)`.
+9. Why does `torch.matmul` broadcast `(B, n, m) @ (m, p)` to `(B, n, p)`? Create an example.
+10. Count total multiply-adds in `x @ W.T` for `x` shape `(B, d_in)`, `W` shape `(d_out, d_in)`.
 
 ### Challenge
 
-12. **MLP from scratch:** Two layers, ReLU, no `nn.Linear` — only `@`, `+`, `torch.relu`. Input `(64, 784)`, hidden 128, output 10.
+11. **MLP from scratch:** Two layers, ReLU, no `nn.Linear` — only `@`, `+`, `torch.relu`. Input `(64, 784)`, hidden 128, output 10.
+
+> 📌 Preview — optional for now
+>
+> **Term:** attention scores (`Q @ K.T`)
+> **One line:** token–token similarity matrix before softmax
+> **Learn properly in:** [Self-Attention](../04-transformers/02-self-attention.md)
+> You can skip the details and keep reading.
+
+12. Simulate attention scores: `Q`, `K` shape `(1, 8, 64)` (1 head, 8 tokens, 64 dims). Compute `(1, 8, 8)` score matrix.
 13. **Matmul profiler:** Time `(1000, 1000) @ (1000, 1000)` on CPU vs GPU. Report elapsed time and GFLOPS estimate.
 
 ---
@@ -383,6 +439,17 @@ Understanding matmul complexity helps you reason about cost: multiplying `(m,n) 
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- `@` is matrix multiply; `*` is element-wise — never confuse them
+- Shape rule: `(m, n) @ (n, p) → (m, p)`; inner dimensions must match
+- `nn.Linear` computes `x @ W.T + b` with weights stored as `(out, in)`
+- Batch dimension leads: `(B, m, n) @ (B, n, p) → (B, m, p)`
+
+### Preview terms (optional until later)
+
+- Attention (`Q @ K.T`), backprop through matmul, transformer blocks — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key formulas
 
 | Operation | Shapes | Result |
@@ -404,6 +471,18 @@ C_{ij} = \sum_{k=1}^{n} A_{ik} B_{kj}
 - **Broadcasting** — PyTorch rules for matmul with mismatched batch ranks
 - **FLOPs** — floating-point ops; matmul dominates NN compute
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Multiply a `(2, 3)` matrix by a `(3, 1)` column vector by hand and verify with PyTorch.
+2. Trace shapes for `(32, 512) @ (256, 512).T` without running code.
+3. Explain why `A * B` and `A @ B` give different results.
+4. Implement `linear(x, W, b)` using only `@` and `+`.
+5. State the inner-dimension rule for batch matmul `(B, m, n) @ (B, n, p)`.
+
+If any item is shaky, reread §3 and the [cheatsheet](02-matrix-multiplication-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -417,3 +496,8 @@ Matrix multiplication assumes you have matrices oriented correctly. Often you ne
 ## Lab
 
 Companion notebook: [`app/pytorch/02_matrix_multiplication.ipynb`](../../app/pytorch/02_matrix_multiplication.ipynb)
+
+## Review
+
+- Cheatsheet: [Matrix Multiplication — Cheatsheet](02-matrix-multiplication-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

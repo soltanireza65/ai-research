@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** Scaled dot-product **attention** from [Attention Mechanism](01-attention-mechanism.md) and **linear projections** from [Building a Layer](../03-neural-networks/02-building-a-layer.md) combine here — Q, K, V are learned `nn.Linear` maps of the same sequence.
+
 In the previous chapter, Query, Key, and Value matrices were **given**. In a transformer, they are **computed from the same input sequence** \(\mathbf{X}\) through learned weight matrices. That is **self-attention**: every token generates a query ("what am I looking for?"), a key ("what do I contain?"), and a value ("what information do I pass forward?"), then attends over all tokens in the sequence.
 
 Self-attention is what lets GPT relate the word "bank" to "river" or "money" depending on context. It runs in parallel across all positions — no sequential recurrence — which is why transformers scale so well on GPUs.
@@ -14,6 +16,12 @@ After this chapter you will be able to:
 - Connect self-attention to `nn.MultiheadAttention` conceptually.
 
 **Where this appears in AI:** Every transformer block begins with self-attention (or masked self-attention in decoders). BERT, GPT, LLaMA, Claude — all rely on this operation stacked dozens of times.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](02-self-attention-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -139,6 +147,7 @@ class SelfAttention(torch.nn.Module):
         self.Wv = torch.nn.Linear(d_model, d_model, bias=False)
 
     def forward(self, x):
+        # x: (seq, d_model) or (batch, seq, d_model)
         Q = self.Wq(x)
         K = self.Wk(x)
         V = self.Wv(x)
@@ -150,7 +159,7 @@ class SelfAttention(torch.nn.Module):
 attn = SelfAttention(d_model=8)
 x = torch.randn(4, 8)
 out, w = attn(x)
-print(out.shape, w.shape)
+print(out.shape, w.shape)  # (4, 8), (4, 4)
 ```
 
 ```python
@@ -173,15 +182,8 @@ print("self-attention weights shape:", A.shape)
 B, n, d = 2, 6, 16
 x = torch.randn(B, n, d)
 layer = SelfAttention(d)
-out, w = layer(x)  # need to adjust for batch — use batched matmul
-# Batched scores: (B, n, n)
-Q = x @ torch.randn(d, d)
-K = x @ torch.randn(d, d)
-V = x @ torch.randn(d, d)
-scores = Q @ K.transpose(-2, -1) / (d ** 0.5)
-weights = F.softmax(scores, dim=-1)
-out = weights @ V
-print(weights.shape)  # (2, 6, 6)
+out, w = layer(x)
+print(out.shape, w.shape)  # (2, 6, 16), (2, 6, 6)
 ```
 
 ---
@@ -437,6 +439,20 @@ plt.show()
 - **Projection matrices** — learned linear maps Wq, Wk, Wv
 - **Contextual embedding** — representation after mixing other tokens
 - **Permutation equivariance** — reorder inputs → reorder outputs (without position)
+
+### Readiness checks
+
+Before **Multi-Head Attention**, you should be able to:
+
+1. Compute Q, K, V from input X with learned weight matrices.
+2. Run self-attention and interpret the attention weight matrix.
+3. Explain why residual connections wrap attention blocks.
+4. Handle batched input shapes `(B, n, d)` in PyTorch.
+5. Reread [Attention Mechanism](01-attention-mechanism.md) if dot-product scores feel fuzzy.
+
+If any item is shaky, reread §6 and the [cheatsheet](02-self-attention-cheatsheet.md).
+
+---
 - **Positional encoding** — injects token order into embeddings
 
 ---
@@ -454,3 +470,8 @@ One head asks one kind of question. Many heads ask many questions at once.
 ## Lab
 
 Companion notebook: [`app/transformers/02_self_attention.ipynb`](../../app/transformers/02_self_attention.ipynb)
+
+## Review
+
+- Cheatsheet: [Self-Attention — Cheatsheet](02-self-attention-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

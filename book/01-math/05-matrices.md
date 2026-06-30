@@ -17,6 +17,12 @@ After this chapter you will be able to:
 
 **Where this appears in AI:** Every forward pass through a dense layer is matrix multiplication. Convolution can be expressed as matrix multiply. Attention forms an \((\text{seq}, \text{seq})\) matrix of scores via \(\mathbf{Q}\mathbf{K}^\top\). GPUs are optimized for large matrix multiplies — the reason deep learning became practical.
 
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](05-matrices-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
+
 ---
 
 ## 2. Intuition
@@ -76,6 +82,12 @@ y_i = \sum_{j=1}^{n} W_{ij} x_j
 
 Row \(i\) of \(W\) dotted with \(x\).
 
+> **Plain English**
+> Each output number is one row of the matrix dotted with the input vector.
+
+> **Python**
+> `y = W @ x`
+
 ### Matrix-matrix multiplication
 
 If \(A \in \mathbb{R}^{m \times n}\) and \(B \in \mathbb{R}^{n \times p}\):
@@ -86,11 +98,23 @@ C = AB \in \mathbb{R}^{m \times p}, \quad C_{ij} = \sum_{k=1}^{n} A_{ik} B_{kj}
 
 **Shape rule:** Inner dimensions must match. \((m \times \mathbf{n})(\mathbf{n} \times p)\).
 
+> **Plain English**
+> Entry \((i,j)\) of the product is row \(i\) of the first matrix dotted with column \(j\) of the second.
+
+> **Python**
+> `C = A @ B`  *(check `A.shape[1] == B.shape[0]`)*
+
 ### Transpose
 
 \(A^\top\) flips rows and columns. If \(A\) is \(m \times n\), then \(A^\top\) is \(n \times m\).
 
 In attention: \(\mathbf{Q}\mathbf{K}^\top\) means multiply \(\mathbf{Q}\) (shape \((\text{seq}, d)\)) by \(\mathbf{K}^\top\) (shape \((d, \text{seq})\)) to get scores shape \((\text{seq}, \text{seq})\).
+
+> **Plain English**
+> Flip rows and columns — what was a row becomes a column.
+
+> **Python**
+> `A.T`
 
 ### Identity matrix
 
@@ -305,7 +329,14 @@ print(out)
 # output: (batch, seq, d_ff) via matmul on last dimension
 ```
 
-**Attention:**
+**Attention (full formula — preview until transformers):**
+
+> 📌 Preview — optional for now
+>
+> **Term:** scaled dot-product attention  
+> **One line:** matrix multiply `Q @ K.T`, then softmax, then multiply by `V`  
+> **Learn properly in:** [Attention Mechanism](../04-transformers/01-attention-mechanism.md)  
+> Matmul shapes below are the core lesson; softmax details are in [Probability](06-probability.md).
 
 \[
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
@@ -354,18 +385,20 @@ Three matrix multiplies: \(QK^\top\), then weights times \(V\).
 
 5. Implement \(y = Wx + b\) for batch input \(X\) shape `(batch, in)` without a loop.
 6. Given `A.shape == (2, 3)` and `B.shape == (2, 3)`, can you compute `A @ B.T`? What is the output shape?
-7. Plot the effect of rotation matrix \(\begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}\) on a unit square for \(\theta = \pi/4\).
-8. Explain why `nn.Linear(768, 768)` has \(768 \times 768\) weights plus 768 biases.
+7. Explain why `nn.Linear(768, 768)` has \(768 \times 768\) weights plus 768 biases.
+8. For attention with `seq=8`, `d_k=64`, what are the shapes of `Q`, `K`, and `Q @ K.T`?
 
 ### Hard
 
-9. For attention with `seq=8`, `d_k=64`, what are the shapes of `Q`, `K`, and `Q @ K.T`?
-10. Show that \((AB)^\top = B^\top A^\top\). Why does this matter for backprop?
-11. Multiply a \(2 \times 3\) matrix by a \(3 \times 2\) matrix. Compare `A @ B` vs `B @ A` — are they the same shape? Same values?
+9. Show that \((AB)^\top = B^\top A^\top\). Why does this matter for backprop?
+10. Multiply a \(2 \times 3\) matrix by a \(3 \times 2\) matrix. Compare `A @ B` vs `B @ A` — are they the same shape? Same values?
 
-### Challenge
+### Challenge (optional — includes previews)
+
+11. *(Optional)* Plot the effect of rotation matrix \(\begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}\) on a unit square for \(\theta = \pi/4\). Trig refresher: [Math Basics](../00-intro/05-math-basics.md)
 
 12. **Matrix playground:** Write a function that takes two compatible matrices, prints the shape rule step-by-step, computes the product, and highlights one entry \(C_{ij}\) showing which row and column were dotted.
+
 13. **Mini attention:** With random `Q, K, V` of shapes `(4, 8)`, compute `softmax(Q @ K.T / sqrt(8), axis=-1) @ V` using NumPy. Print output shape and verify rows of the softmax matrix sum to 1.
 
 ---
@@ -463,6 +496,18 @@ print(f"Saved to {out}")
 - **Linear transformation** — function \(x \mapsto Wx\) (plus bias)
 - **Batch dimension** — leading axes indexing independent examples
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. State the shape rule \((m \times n)(n \times p) = (m \times p)\) and apply it to two example matrices.
+2. Compute a small matrix-vector product by hand.
+3. Write `y = W @ x + b` in NumPy for a batch of inputs without a Python loop.
+4. Explain why `A @ B` is not the same as `B @ A` in general.
+5. Predict the shape of `Q @ K.T` given sequence length and embedding dimension.
+
+If any item is shaky, reread §3 and the [cheatsheet](05-matrices-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -478,3 +523,8 @@ Together, matrices and probability power the output layer of classifiers and lan
 ## Lab
 
 Companion notebook: [`app/math/05_matrices.ipynb`](../../app/math/05_matrices.ipynb)
+
+## Review
+
+- Cheatsheet: [Matrices — Cheatsheet](05-matrices-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

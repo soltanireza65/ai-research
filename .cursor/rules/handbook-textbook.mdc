@@ -8,16 +8,18 @@ alwaysApply: false
 
 Your task is **NOT** to summarize notebooks or restate notebook cells.
 
-Your task is to **transform** each notebook into a complete textbook chapter for an experienced software engineer with little formal math background.
+Your task is to **transform** each notebook into a complete textbook chapter for a **self-taught programmer learning AI from the ground up** — not necessarily a CS graduate, often with weak or forgotten formal math.
 
 ## Audience
 
-- Experienced software engineer, comfortable with Python
-- Little or no calculus, linear algebra, or probability background
+- Comfortable with Python (self-taught, bootcamp, or professional)
+- Little or no calculus, linear algebra, or probability — rusty high-school math is OK
 - Wants mathematical intuition behind AI, not just library usage
 - Learns through intuition, visualization, code, and examples
 
 Always explain **WHY** before **HOW**. Never assume prior mathematical knowledge.
+
+If the reader feels stupid when seeing jargon like sigmoid or ReLU early on, **that is a writing failure**, not a reader failure. Fix it with preview discipline.
 
 ## Required structure (all 13 sections)
 
@@ -47,12 +49,60 @@ Every notebook chapter MUST include these headings exactly:
 6. Practical exercises
 7. AI application
 
-## Callouts (use all four types)
+## Preview discipline (critical)
+
+Any ML term introduced **before** its teaching chapter MUST use:
+
+```markdown
+> 📌 Preview — optional for now
+>
+> **Term:** sigmoid
+> **One line:** squashes a number to (0, 1)
+> **Learn properly in:** [Single Neuron](../03-neural-networks/01-single-neuron.md)
+> You can skip the details and keep reading.
+```
+
+Canonical term → chapter map: [`book/00-intro/04-vocabulary-roadmap.md`](book/00-intro/04-vocabulary-roadmap.md)
+
+### Tiered Section 7 (AI Connection)
+
+| Chapters | Section 7 rule |
+|----------|----------------|
+| `01-math/01`–`04` | Max ~2 short paragraphs + preview table/callouts. **No** full sigmoid/softmax/cross-entropy/attention formulas in core sections. |
+| `01-math/05`–`06` | Full AI connection allowed; probability chapter is payoff for loss terms |
+| `02-pytorch/*` | Use `📌 Preview` when naming attention, backprop, transformers, cross-entropy in §1–§6. Keep §1 focused on tensor mechanics. |
+| `03-neural-networks/*`–`04-transformers/*` | Full depth; payoff intros linking back to math/PyTorch; define jargon on first use |
+
+### Forbidden in math 01–04 core sections (§1–§6)
+
+Full formulas or deep explanations of: sigmoid, softmax, cross-entropy, attention, embeddings (beyond one preview callout).
+
+## Callouts (use all five types when applicable)
 
 - `> 💡 Intuition`
 - `> ⚠️ Common Mistake`
 - `> 🧠 AI Insight`
 - `> 🔬 Deep Dive`
+- `> 📌 Preview — optional for now` (when naming ML terms early)
+
+## Plain English (required after major formulas)
+
+```markdown
+> **Plain English**
+> Multiply input x by 2 to get output y.
+
+> **Python**
+> `y = 2 * x`
+```
+
+## Chapter pacing and readiness
+
+- §1 must include **Suggested pacing (3 sessions)** block.
+- §12 must include **### Readiness checks** (5 concrete skills).
+
+## Cheatsheet standard
+
+Every chapter needs `book/<module>/<NN>-<slug>-cheatsheet.md` with: core ideas, Python snippet, preview/payoff table if needed, **Stuck?** line, footer links. Use [`book/_template/cheatsheet-template.md`](book/_template/cheatsheet-template.md). Vocabulary roadmap link must resolve from the cheatsheet's directory.
 
 ## Notation rules
 
@@ -85,10 +135,13 @@ When introducing `f(x) = 2x`, explain:
 
 - Summarizing notebook cells instead of expanding
 - Dropping straight into notation without intuition
+- Name-dropping ReLU/sigmoid/MSE in chapter 1 without preview boxes
 - Graphs without interpretation
 - Exercises without difficulty tiers
-- Missing AI connection to ML, neural networks, optimization, transformers, or embeddings
+- Section 7 longer than core math in early chapters (summary drift)
 
 ## Validation
 
 Run `just validate-book --chapter <path>` before considering a chapter complete.
+
+Module-aware rules in `scripts/validate_chapter.py` enforce preview discipline.

@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** [Matrix Multiplication](../02-pytorch/02-matrix-multiplication.md) and [Matrices](../01-math/05-matrices.md) taught `@` and shape rules. **Here you apply them to `nn.Linear` and batched layers.**
+
 A single neuron produces one number. A neural network layer produces **many numbers at once** — one per neuron — for **every example in a batch**. The operation that makes this possible is **matrix multiplication**, the same `@` operator you practiced in the PyTorch fundamentals chapters.
 
 A **fully connected layer** (also called a **dense** or **linear** layer) computes:
@@ -20,6 +22,12 @@ After this chapter you will be able to:
 - Read `nn.Linear(in_features, out_features)` and know what each argument means.
 
 **Where this appears in AI:** Every `nn.Linear` in PyTorch — from MLP blocks in transformers to classification heads in vision models — is this operation. Understanding layers is understanding 90% of forward passes in deep learning.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](02-building-a-layer-cheatsheet.md) skim
+- Session B: §4–§6 + [lab notebook](../../app/neural_networks/02_building_a_layer.ipynb)
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -471,6 +479,18 @@ print("row sums:", probs.sum(dim=-1)[:3])
 - **Pre-activation** — matrix multiply result before activation
 - **nn.Linear** — PyTorch module implementing the layer forward pass
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Given `in_features`, `out_features`, and `batch`, state shapes of `x`, `W`, `b`, and `y`.
+2. Write `y = x @ W.T + b` in PyTorch and verify with `print(tensor.shape)`.
+3. Explain why stacking two `Linear` layers without activation is still one linear map.
+4. Count parameters in `nn.Linear(n_in, n_out)`.
+5. Apply ReLU element-wise without changing tensor shape.
+
+If any item is shaky, reread §3–§4 and the [cheatsheet](02-building-a-layer-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -486,3 +506,8 @@ Forward pass builds the prediction. Backward pass builds the learning signal.
 ## Lab
 
 Companion notebook: [`app/neural_networks/02_building_a_layer.ipynb`](../../app/neural_networks/02_building_a_layer.ipynb)
+
+## Review
+
+- Cheatsheet: [Building a Layer — Cheatsheet](02-building-a-layer-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

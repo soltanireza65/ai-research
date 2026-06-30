@@ -8,7 +8,8 @@ The handbook is based on [Become Elite AI Researcher](https://github.com/vukrosi
 
 1. Open [`book/SUMMARY.md`](book/SUMMARY.md).
 2. Read [`book/00-intro/01-how-to-use-this-handbook.md`](book/00-intro/01-how-to-use-this-handbook.md).
-3. Run the companion notebooks with:
+3. If unfamiliar terms like ReLU or sigmoid cause anxiety, read [`book/00-intro/04-vocabulary-roadmap.md`](book/00-intro/04-vocabulary-roadmap.md) before Chapter 1.
+4. Run the companion notebooks with:
 
 ```bash
 uv sync

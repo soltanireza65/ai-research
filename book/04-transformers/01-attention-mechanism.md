@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** **Dot products** and **matrix multiply** from [Vectors](../01-math/03-vectors.md) and [Matrices](../01-math/05-matrices.md), and **softmax** from [Probability](../01-math/06-probability.md), come together here.
+
 Before transformers, sequence models relied on recurrence — processing tokens one at a time, carrying hidden state forward. **Attention** offered a different idea: at each step, **look at everything** and decide what matters, using learned **queries**, **keys**, and **values**.
 
 The core computation is elegant: compare a query to every key, turn comparisons into weights with **softmax**, and take a weighted sum of values. That is a differentiable, parallelizable routing mechanism — the foundation of GPT, BERT, and modern vision transformers.
@@ -14,6 +16,12 @@ After this chapter you will be able to:
 - Describe why we divide scores by \(\sqrt{d_k}\).
 
 **Where this appears in AI:** Every transformer layer uses attention. Cross-attention in encoder-decoder models (translation) lets the decoder query encoder states. Self-attention (next chapter) is the special case where Q, K, V all come from the same sequence.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](01-attention-mechanism-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -347,11 +355,12 @@ The full operation is three matrix multiplies: \(\mathbf{Q}\mathbf{K}^\top\) (sc
 
 ### Hard
 
-7. Prove that softmax is invariant to adding a constant to all scores in a row.
-8. For \(d_k = 64\), if dot products have variance 64, what is variance after scaling?
-9. Derive \(\frac{\partial L}{\partial \mathbf{Q}}\) given upstream gradient \(\frac{\partial L}{\partial \mathbf{O}}\) (conceptual outline).
+7. For \(d_k = 64\), if dot products have variance 64, what is variance after scaling?
+8. Derive \(\frac{\partial L}{\partial \mathbf{Q}}\) given upstream gradient \(\frac{\partial L}{\partial \mathbf{O}}\) (conceptual outline).
 
 ### Challenge
+
+9. Prove that softmax is invariant to adding a constant to all scores in a row. *(See also [Probability](../01-math/06-probability.md) §3 for the stability trick.)*
 
 10. **Attention playground:** Generate random Q, K, V for \(n=8\), plot heatmap, animate how output changes as you rotate Q's first row toward different keys.
 
@@ -447,6 +456,18 @@ inspect_attention(Q, K, V)
 - **Scaled dot-product attention** — standard attention in transformers
 - **Softmax** — converts scores to normalized weights
 
+### Readiness checks
+
+Before **Self-Attention**, you should be able to:
+
+1. Compute scaled dot-product attention on a 2×2 example by hand.
+2. Explain what Q, K, and V represent in plain language.
+3. Implement attention with `Q @ K.T` and `softmax` in PyTorch.
+4. State why scores are divided by \(\sqrt{d_k}\).
+5. Trace shapes through Q, K, V for a small batch.
+
+If any item is shaky, reread §6 and the [cheatsheet](01-attention-mechanism-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -462,3 +483,8 @@ Attention is the mechanism. Self-attention is how transformers apply it to langu
 ## Lab
 
 Companion notebook: [`app/transformers/01_attention_mechanism.ipynb`](../../app/transformers/01_attention_mechanism.ipynb)
+
+## Review
+
+- Cheatsheet: [Attention Mechanism — Cheatsheet](01-attention-mechanism-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

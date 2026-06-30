@@ -15,12 +15,14 @@ This handbook is a single continuous path, not a menu of unrelated tutorials. Ea
 
 This chapter is the map. Use it when you wonder *why am I learning probability right now?* or *what comes after transformers?*
 
+If unfamiliar words appear **before** they are explained (e.g. sigmoid in Functions), use the [Vocabulary Roadmap](04-vocabulary-roadmap.md). Early chapters use **preview** labels; payoff chapters (Probability, Single Neuron, Attention) teach those terms properly.
+
 ### The Arc at a Glance
 
 ```
   Part I — Foundations to Transformers (written)
   ─────────────────────────────────────────────
-  00 Intro          → how to study, setup, this map
+  00 Intro          → how to study, setup, vocabulary roadmap, math basics bridge
   01 Math           → language of change and uncertainty
   02 PyTorch        → executable linear algebra on GPU/CPU
   03 Neural Nets    → composable functions trained by gradients
@@ -39,6 +41,8 @@ The goal of Part I is not to make you a Kaggle grandmaster. It is to make you so
 
 ### Module 01 — Math Fundamentals
 
+**Start here if school math is rusty:** [Math Basics](05-math-basics.md) (PEMDAS, exponents, axes, `e`/`log`/`sin` previews).
+
 **Chapters:** Functions → Derivatives → Vectors → Gradients → Matrices → Probability
 
 **Why first:** Every training algorithm asks "which direction improves the loss?" That question is calculus (derivatives, gradients) on vectors and matrices. Probability explains why models output distributions, why cross-entropy is a loss function, and why "confidence" is not certainty.
@@ -47,7 +51,7 @@ The goal of Part I is not to make you a Kaggle grandmaster. It is to make you so
 
 | Chapter | AI payoff |
 |---------|-----------|
-| Functions | Loss functions, activations, model as `f(x)` |
+| Functions | Core: input→output rules; previews only for ML names |
 | Derivatives | Slope of loss, sensitivity, optimization steps |
 | Vectors | Embeddings, feature vectors, weight rows/columns |
 | Gradients | Multivariable optimization, direction of steepest descent |
@@ -70,6 +74,8 @@ Do not rush this module. It is the compression algorithm for everything that fol
 
 Each PyTorch chapter maps 1:1 to a lab notebook under `app/pytorch/`. Run every cell with the handbook open side-by-side.
 
+> **Module review before Module 03:** Skim all seven PyTorch cheatsheets in `book/02-pytorch/` — shape rules, `@`, `.T`, `view`, indexing. If any cheatsheet feels foreign, rerun that lab before building layers.
+
 > 🔬 Deep Dive
 >
 > PyTorch is not "the ML framework" in this curriculum — it is **executable notation**. When the handbook writes \(C = A B\), the lab writes `C = A @ B`. When backprop later needs \(\partial L / \partial W\), PyTorch's autograd tracks the same graph you would derive by hand — the handbook's backprop chapter connects those views explicitly.
@@ -82,7 +88,7 @@ Each PyTorch chapter maps 1:1 to a lab notebook under `app/pytorch/`. Run every 
 
 **What you unlock:** Implementing a MLP from scratch, understanding why depth helps, deriving backprop on paper and trusting `loss.backward()` because you know what it computes.
 
-Backpropagation has no companion notebook — it draws on 3Blue1Brown-style intuition and handbook derivations. Budget extra time; this is the conceptual hinge of deep learning.
+Companion lab: `app/neural_networks/03_backpropagation.ipynb` — one-weight `backward()` and a tiny training loop. Budget extra time; this is the conceptual hinge of deep learning.
 
 > 🧠 AI Insight
 >
@@ -120,7 +126,7 @@ Rough estimates for a working engineer studying part-time (8–10 hrs/week):
 
 | Phase | Duration | Milestone |
 |-------|----------|-----------|
-| Math (01) | 6–10 weeks | Can explain gradient descent on paper |
+| Math (01) | 7–12 weeks | Can explain gradient descent on paper (includes Math Basics if needed) |
 | PyTorch (02) | 3–5 weeks | Can debug tensor shapes in a small model |
 | Neural Nets (03) | 2–4 weeks | Can implement backprop for a MLP |
 | Transformers (04) | 3–5 weeks | Can explain self-attention to a colleague |

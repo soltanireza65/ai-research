@@ -2,7 +2,25 @@
 
 ## 1. Introduction
 
-Every neural network, every transformer, every training loop in PyTorch begins with the same primitive: a **tensor**. If NumPy arrays are the workhorse of scientific Python, tensors are the workhorse of deep learning — arrays that can live on a GPU, track gradients, and flow through autograd.
+Every neural network, every training loop in PyTorch begins with the same primitive: a **tensor**.
+
+> 📌 Preview — optional for now
+>
+> **Term:** transformer
+> **One line:** a neural architecture built from attention and feed-forward blocks
+> **Learn properly in:** [Decoder-Only Transformer](../04-transformers/04-decoder-only-transformer.md)
+> You can skip the details and keep reading.
+
+**Recap from math:** a 1D tensor is like a [vector](../01-math/03-vectors.md); a 2D tensor is like a [matrix](../01-math/05-matrices.md). If those chapters felt rusty, skim their cheatsheets first.
+
+If NumPy arrays are the workhorse of scientific Python, tensors are the workhorse of deep learning — arrays that can live on a GPU and flow through training graphs.
+
+> 📌 Preview — optional for now
+>
+> **Term:** autograd
+> **One line:** PyTorch's system that tracks operations so gradients can be computed
+> **Learn properly in:** [Backpropagation](../03-neural-networks/03-backpropagation.md)
+> You can skip the details and keep reading.
 
 You already know lists and NumPy arrays. A tensor is the next step: a multi-dimensional array with a **shape** (how big it is along each axis), a **dtype** (what kind of numbers it holds), and optionally a **device** (CPU or GPU). When you write `model(x)` in PyTorch, `x` is almost always a tensor.
 
@@ -13,7 +31,13 @@ After this chapter you will be able to:
 - Choose the right dtype (`float32` vs `float64`) for ML workloads.
 - Explain why tensors are the universal container for weights, activations, and gradients.
 
-**Where this appears in AI:** Model weights are tensors. Input batches are tensors. Loss values are tensors. Embeddings are tensors. Attention scores are tensors. Mastering tensor creation is the first hands-on step toward building and training any PyTorch model.
+**Where this appears in AI:** Model weights are tensors. Input batches are tensors. Loss values are tensors. Mastering tensor creation is the first hands-on step toward building and training any PyTorch model.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](01-creating-tensors-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -35,11 +59,18 @@ After this chapter you will be able to:
                     [[5, 6], [7, 8]]]
 ```
 
-In a transformer, a batch of token embeddings might have shape `(32, 128, 768)`:
+In a batched sequence tensor, shape might be `(32, 128, 768)`:
 
 - `32` — batch size (32 sentences processed together)
 - `128` — sequence length (128 tokens per sentence)
 - `768` — hidden dimension (768 numbers per token)
+
+> 📌 Preview — optional for now
+>
+> **Term:** embeddings
+> **One line:** learned vectors that represent tokens or categories
+> **Learn properly in:** [Vectors](../01-math/03-vectors.md) (intuition), [Self-Attention](../04-transformers/02-self-attention.md) (full use)
+> You can skip the details and keep reading.
 
 Each slot in that 3D grid is one float. The **shape** tells you how to navigate the grid; the **dtype** tells you the precision of each number.
 
@@ -64,6 +95,12 @@ A **tensor** is an ordered multi-dimensional array of numbers of a single **dtyp
 - \(k\) is the **rank** (number of dimensions).
 - \(d_i\) is the size along dimension \(i\).
 - The **total number of elements** is \(d_0 \times d_1 \times \cdots \times d_{k-1}\).
+
+> **Plain English**
+> Shape is a list of sizes along each axis; multiply them to get how many numbers the tensor stores.
+
+> **Python**
+> `x.numel() == x.shape[0] * x.shape[1] * ...`
 
 **Example:** A tensor with shape `(2, 3)` has rank 2, two rows and three columns, and \(2 \times 3 = 6\) elements total.
 
@@ -179,7 +216,7 @@ plt.show()
 
 **How to read these plots:**
 
-1. **Heatmap:** Each cell is one element. Row 0, column 0 holds `1.0`; row 1, column 2 holds `6.0`. Brighter color = larger value. This is how you might visualize a small weight matrix or attention slice.
+1. **Heatmap:** Each cell is one element. Row 0, column 0 holds `1.0`; row 1, column 2 holds `6.0`. Brighter color = larger value. This is how you might visualize a small weight matrix.
 
 2. **Histogram:** `torch.randn(1000)` draws 1000 samples from a bell curve centered at 0. Most values fall between -2 and 2. Weight initialization in neural networks often uses this distribution so starting weights are small and symmetric.
 
@@ -240,6 +277,16 @@ Each weight is a small random number — typical initialization before training 
 
 The identity matrix \(I\) has ones on the diagonal and zeros elsewhere. Multiplying any matrix by \(I\) returns the same matrix.
 
+\[
+I_{ij} = 1 \text{ if } i = j \text{, else } 0
+\]
+
+> **Plain English**
+> Ones on the diagonal, zeros everywhere else — multiplying by \(I\) leaves a matrix unchanged.
+
+> **Python**
+> `I = torch.eye(n)`
+
 ```python
 I = torch.eye(3)
 print(I)
@@ -248,7 +295,7 @@ print(I)
 #         [0., 0., 1.]])
 ```
 
-In attention mechanisms, identity-like structures appear in residual connections: `output = x + sublayer(x)`.
+In residual connections (preview), models often add a sublayer's output back to its input: `output = x + sublayer(x)`.
 
 ---
 
@@ -404,6 +451,17 @@ print(f"Saved to {out}")
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- Tensors are multi-dimensional arrays with shape, dtype, and device
+- `torch.tensor()` copies; `torch.from_numpy()` shares memory
+- Use `float32` for ML weights and activations
+- `numel` equals the product of shape entries
+
+### Preview terms (optional until later)
+
+- Embeddings, attention, autograd, transformers — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key formulas
 
 | Concept | Expression |
@@ -422,6 +480,18 @@ print(f"Saved to {out}")
 - **numel** — total number of elements
 - **requires_grad** — whether autograd tracks this tensor
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Create a `(3, 4)` tensor of `float32` zeros and report its shape and numel.
+2. Explain the difference between `torch.tensor()` and `torch.from_numpy()`.
+3. Choose `float32` vs `int64` for model weights vs class labels.
+4. Create a random weight matrix `(out, in)` and bias `(out,)` for a linear layer.
+5. Read shape `(32, 128, 768)` as batch × sequence × hidden size.
+
+If any item is shaky, reread §3–§4 and the [cheatsheet](01-creating-tensors-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -437,3 +507,8 @@ Shapes must align: `(m, n) @ (n, p) → (m, p)`. Getting this wrong is one of th
 ## Lab
 
 Companion notebook: [`app/pytorch/01_creating_tensors.ipynb`](../../app/pytorch/01_creating_tensors.ipynb)
+
+## Review
+
+- Cheatsheet: [Creating Tensors — Cheatsheet](01-creating-tensors-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

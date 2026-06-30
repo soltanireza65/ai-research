@@ -2,24 +2,42 @@
 
 ## 1. Introduction
 
-Tensors hold millions of numbers; you rarely need all of them at once. **Indexing** picks one element. **Slicing** picks rows, columns, ranges, or sub-blocks. **Boolean masking** selects every position where a condition is true. These operations are how you implement padding masks in transformers, extract the last valid token, and debug a single misclassified example.
+Tensors hold millions of numbers; you rarely need all of them at once. **Indexing** picks one element. **Slicing** picks rows, columns, ranges, or sub-blocks. **Boolean masking** selects every position where a condition is true. These operations are how you extract the last valid token, mask padded positions, and debug a single misclassified example.
 
-PyTorch indexing mirrors NumPy: `x[0]`, `x[:, 2]`, `x[1:4]`, `x[x > 0]`. The rules extend naturally to任意 dimensions. Master slicing and you can read and write any tensor shape without reshaping everything.
+> 📌 Preview — optional for now
+>
+> **Term:** transformer padding / causal masks
+> **One line:** boolean patterns that hide pad tokens or future tokens in attention
+> **Learn properly in:** [Self-Attention](../04-transformers/02-self-attention.md)
+> You can skip the details and keep reading.
+
+PyTorch indexing mirrors NumPy: `x[0]`, `x[:, 2]`, `x[1:4]`, `x[x > 0]`. The rules extend naturally to any number of dimensions. Master slicing and you can read and write any tensor shape without reshaping everything.
 
 After this chapter you will be able to:
 
 - Index and slice tensors along any dimension.
 - Select rows, columns, and submatrices with `:` notation.
 - Apply boolean and integer (fancy) indexing.
-- Build attention masks and extract batch elements confidently.
+- Build sequence masks and extract batch elements confidently.
 
-**Where this appears in AI:** Padding masks zero out invalid tokens. You slice `hidden[:, -1, :]` for sentence classification. You index `logits[range(batch), labels]` for cross-entropy. Data loading indexes samples by batch indices.
+**Where this appears in AI:** Padding masks zero out invalid tokens. You slice `hidden[:, -1, :]` for sentence classification. Data loading indexes samples by batch indices.
 
 If NumPy slicing felt mysterious, PyTorch uses the same rules — including half-open intervals where `stop` is excluded. The muscle memory you build here transfers directly to NumPy preprocessing pipelines.
 
-**Advanced indexing and autograd:** Some fancy indexing patterns have limited or no gradient support for certain index tensors. Prefer `gather`, `index_select`, or batched ops when writing custom autograd functions intended for training.
+> 📌 Preview — optional for now
+>
+> **Term:** autograd + fancy indexing
+> **One line:** some index patterns do not backpropagate to all inputs
+> **Learn properly in:** [Backpropagation](../03-neural-networks/03-backpropagation.md)
+> You can skip the details and keep reading.
 
-Indexing is also how you **inspect** models during development: pull one batch element, one head, one channel — narrow failures before they disappear into batch averages. Treat slicing as your primary debugger for tensor-shaped data.
+Indexing is also how you **inspect** models during development: pull one batch element, one channel, one time step — narrow failures before they disappear into batch averages. Treat slicing as your primary debugger for tensor-shaped data.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](05-indexing-and-slicing-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -62,9 +80,21 @@ For tensor \(T\) with shape \((d_0, d_1, \ldots, d_{k-1})\), index tuple \((i_0,
 
 Slice `start:stop:step` along dimension \(j\) selects indices from `start` inclusive to `stop` exclusive, stepping by `step`.
 
+> **Plain English**
+> Python-style ranges along one axis — `stop` is not included.
+
+> **Python**
+> `x[1:4]`  # indices 1, 2, 3
+
 ### Boolean mask
 
 Mask \(M\) with the same shape as \(T\) (or broadcastable). `T[M]` returns a 1D tensor of all \(T_{ij\ldots}\) where \(M_{ij\ldots} = \text{True}\).
+
+> **Plain English**
+> Keep only the entries where the mask is True — like filtering a spreadsheet by a checkbox column.
+
+> **Python**
+> `x[x > 0]` or `x[mask]`
 
 ---
 
@@ -102,7 +132,7 @@ selected_rows = x[indices]  # rows 0, 2, 3
 print(selected_rows.shape)  # (3, 5)
 ```
 
-### Attention mask pattern
+### Sequence mask pattern (preview)
 
 ```python
 seq_len = 5
@@ -112,6 +142,8 @@ scores = torch.randn(seq_len, seq_len)
 scores_masked = scores.masked_fill(~mask, float("-inf"))
 print(scores_masked)
 ```
+
+Used later for causal attention — scores at masked positions become \(-\infty\) before softmax.
 
 ---
 
@@ -199,7 +231,7 @@ positives = x[x > 0]
 print(positives)  # tensor([1., 3., 5.])
 ```
 
-### Example 4: Cross-entropy indexing
+### Example 4: Per-class logit indexing (preview)
 
 For logits `(N, C)` and label indices `(N,)`, pick the predicted score for the true class:
 
@@ -223,7 +255,7 @@ print(pad_mask)
 # True where padded
 ```
 
-**Step 1:** `positions` is `[0,1,...,7]`. **Step 2:** Compare each row's true length to positions. **Step 3:** Use mask in attention or loss to ignore pad tokens.
+**Step 1:** `positions` is `[0,1,...,7]`. **Step 2:** Compare each row's true length to positions. **Step 3:** Use mask in loss or attention (preview) to ignore pad tokens.
 
 ### Example 6: gather for per-row selection
 
@@ -433,6 +465,17 @@ Bracket indexing is the fastest way to probe tensors in a debugger; `gather` is 
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- `:` selects whole axes; slices are half-open `[start:stop)`
+- Boolean masks filter; fancy indexing picks non-contiguous rows
+- Slices often share memory — clone before in-place mutation
+- Name dimensions aloud: batch, sequence, feature
+
+### Preview terms (optional until later)
+
+- Causal masks, cross-entropy indexing, autograd limits — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key notation
 
 | Expression | Meaning |
@@ -451,6 +494,18 @@ Bracket indexing is the fastest way to probe tensors in a debugger; `gather` is 
 - **Boolean mask** — conditional selection
 - **Causal mask** — prevent future token attention
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Extract row 2, column 3, and submatrix `[1:3, 2:4]` from a `(4, 5)` tensor.
+2. Get last-token hidden states `(B, D)` from `(B, T, D)` with `[:, -1, :]`.
+3. Build a lower-triangular boolean mask for `seq_len=8`.
+4. Select per-row logits with `logits[torch.arange(N), labels]`.
+5. Explain when slicing creates a view vs a copy.
+
+If any item is shaky, reread §4 and the [cheatsheet](05-indexing-and-slicing-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -464,3 +519,8 @@ Indexing selects existing elements. **Concatenating** joins tensors along an axi
 ## Lab
 
 Companion notebook: [`app/pytorch/05_indexing_and_slicing.ipynb`](../../app/pytorch/05_indexing_and_slicing.ipynb)
+
+## Review
+
+- Cheatsheet: [Indexing and Slicing — Cheatsheet](05-indexing-and-slicing-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

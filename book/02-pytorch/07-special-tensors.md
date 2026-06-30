@@ -15,9 +15,13 @@ After this chapter you will be able to:
 
 **Where this appears in AI:** Identity for residual paths. `linspace` for plotting loss curves and learning rate schedules. `arange` for position indices. Random normal/uniform for weight init. One-hot for classification targets.
 
-These factories look trivial compared to attention blocks, yet almost every research codebase uses them daily — in unit tests, learning-rate warmups, synthetic batches, and mask construction. Knowing them by heart removes friction when reading unfamiliar repositories.
+These factories look trivial compared to full model blocks, yet almost every research codebase uses them daily — in unit tests, learning-rate warmups, synthetic batches, and mask construction. Knowing them by heart removes friction when reading unfamiliar repositories.
 
-**Generator objects:** PyTorch supports explicit `torch.Generator(device='cpu')` passed to `randn(..., generator=g)` for isolated random streams — useful when you need reproducible dropout masks without fixing the global seed for the entire process.
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](07-special-tensors-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -35,7 +39,7 @@ These factories look trivial compared to attention blocks, yet almost every rese
   [0 0 1]
 ```
 
-In sinusoidal positional encoding (original Transformer), position \(pos\) and dimension \(i\) use angles from a geometric progression — often built with `arange` and powers of 10000.
+In sinusoidal positional encoding (preview), position \(pos\) and dimension \(i\) use angles from a geometric progression — often built with `arange` and powers of 10000.
 
 > 🔬 Deep Dive
 >
@@ -53,6 +57,12 @@ I_n \in \mathbb{R}^{n \times n}, \quad I_{ij} = \begin{cases} 1 & i = j \\ 0 & i
 
 `torch.eye(n)` creates \(I_n\).
 
+> **Plain English**
+> A square matrix with ones on the diagonal and zeros off-diagonal — multiplying by it leaves a matrix unchanged.
+
+> **Python**
+> `torch.eye(n)`
+
 ### arange
 
 Similar to Python `range`: values `start, start+step, ...` while `< end` (when step positive).
@@ -65,11 +75,23 @@ Similar to Python `range`: values `start, start+step, ...` while `< end` (when s
 x_k = \text{start} + k \cdot \frac{\text{end} - \text{start}}{N - 1}, \quad k = 0, \ldots, N-1
 \]
 
+> **Plain English**
+> Split the interval from start to end into \(N\) evenly spaced points, including both endpoints.
+
+> **Python**
+> `torch.linspace(start, end, steps=N)`
+
 (for \(N > 1\))
 
 ### Random normal
 
 \(X \sim \mathcal{N}(\mu, \sigma^2)\): `torch.randn` gives \(\mu=0, \sigma=1\); scale and shift as needed.
+
+> **Plain English**
+> Draw random numbers from a bell curve centered at zero — typical starting point for weight initialization.
+
+> **Python**
+> `torch.randn(*shape)`
 
 ---
 
@@ -176,7 +198,14 @@ plt.show()
 1. **Identity:** Diagonal ones — where residual connections conceptually "pass through" the input channel.
 2. **linspace + sin:** Smooth sampling for curves — same idea as sampling a loss landscape or activation plot.
 3. **randn histogram:** Bell curve — weight initialization distribution.
-4. **arange:** Discrete positions 0..31 — like token indices before embedding lookup.
+4. **arange:** Discrete positions 0..31 — like token indices before lookup.
+
+> 📌 Preview — optional for now
+>
+> **Term:** embedding lookup
+> **One line:** Maps token IDs to dense vectors — `nn.Embedding` in PyTorch
+> **Learn properly in:** [Decoder-Only Transformer](../../04-transformers/04-decoder-only-transformer.md)
+> You can skip embedding details until transformers.
 
 ```python
 # Learning rate schedule preview
@@ -457,6 +486,17 @@ Before training a new architecture, list every tensor you create that is not loa
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- Factories create structured tensors without input data
+- `arange` for indices; `linspace` for smooth grids; `randn` for init
+- `torch.manual_seed` fixes reproducibility on CPU
+- `eye`, `tril`, `full` build masks and identity patterns
+
+### Preview terms (optional until later)
+
+- Sinusoidal positional encoding, transformer masks — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key factories
 
 | Function | Output pattern |
@@ -476,6 +516,18 @@ Before training a new architecture, list every tensor you create that is not loa
 - **positional encoding** — inject order into embeddings
 - **factory function** — tensor constructor without input data
 
+### Readiness checks
+
+Before the neural-networks module, you should be able to:
+
+1. Create `3×3` identity and verify `A @ I == A`.
+2. List values from `torch.arange(0, 10, 2)` and endpoints of `linspace(0, 1, 5)`.
+3. Set seed 42 and reproduce identical `randn(5)` twice.
+4. Build a causal mask with `torch.tril(torch.ones(n, n))`.
+5. Explain `rand` vs `randn` for weight initialization.
+
+If any item is shaky, reread §3–§4 and the [cheatsheet](07-special-tensors-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -491,3 +543,8 @@ Every `forward()` you write will be a sequence of the tensor operations from the
 ## Lab
 
 Companion notebook: [`app/pytorch/07_special_tensors.ipynb`](../../app/pytorch/07_special_tensors.ipynb)
+
+## Review
+
+- Cheatsheet: [Special Tensors — Cheatsheet](07-special-tensors-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

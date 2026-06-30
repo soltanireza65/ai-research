@@ -146,5 +146,9 @@ mse = lambda y, y_hat: (y - y_hat) ** 2
 
 **Derivatives** — how sensitive is the output to a tiny change in input? That's gradient descent.
 
-→ [Derivatives cheatsheet](02-derivatives-cheatsheet.md) *(when available)*  
-→ [Full chapter](01-functions.md)
+→ [Derivatives cheatsheet](02-derivatives-cheatsheet.md)  
+→ [Full chapter](01-functions.md) · [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
+## Stuck?
+
+Reread §3 Formal Definitions and §6 Worked Examples in the [full chapter](01-functions.md).

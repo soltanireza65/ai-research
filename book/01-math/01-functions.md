@@ -2,22 +2,28 @@
 
 ## 1. Introduction
 
-Before you can understand neural networks, transformers, or any machine learning model, you need a precise idea of what a **function** is. Not the vague memory of high-school algebra — a clear, programmer-friendly definition you can connect to Python code immediately.
+Before you can understand neural networks, transformers, or any machine learning model, you need a precise idea of what a **function** is. Not vague high-school algebra — a clear, programmer-friendly definition you can connect to Python immediately.
 
-A function is a rule that takes an **input** and produces exactly one **output**. In machine learning, almost everything is a function:
+A function is a rule that takes an **input** and produces exactly one **output**. Same input always gives the same output.
 
-- A **loss function** takes model predictions and true labels, and outputs a single number measuring error.
-- An **activation function** (like ReLU) takes a neuron's pre-activation value and outputs a transformed value.
-- A **neural network** is a large composed function: raw pixels in, class probabilities out.
+**What you must learn in this chapter (core):**
 
-After this chapter you will be able to:
+- Read and write mathematical function notation (`f(x)`) without fear
+- Plot linear, quadratic, and composed functions with Matplotlib
+- Map simple math functions to Python `def` functions
+- Explain slope, symmetry, and composition in plain language
 
-- Read and write mathematical function notation without fear.
-- Plot linear, quadratic, and common nonlinear functions with Matplotlib.
-- Explain how function shape (slope, curvature) affects learning behavior.
-- Map any simple math function to an equivalent Python `def`.
+**What you can skip for now (preview):**
 
-**Where this appears in AI:** Linear regression is a linear function. Logistic regression adds a nonlinear function (sigmoid). Every layer in a neural network applies a function. Understanding functions is the first step toward understanding all of them.
+Words like **ReLU**, **sigmoid**, **loss function**, and **neuron** may appear as **preview labels** — a map of where the book goes, not a test of what you should already know. Skip any `📌 Preview` box and use the [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md) when a name bothers you.
+
+After this chapter you will **not** be expected to understand activation functions or training losses. You **will** understand functions — the foundation everything else builds on.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](01-functions-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -95,6 +101,12 @@ f(x) = kx + b
 
 When \(b = 0\), we get the simpler form \(f(x) = kx\).
 
+> **Plain English**
+> Multiply the input by the slope `k`, then add the intercept `b`.
+
+> **Python**
+> `y = k * x + b`
+
 ### Quadratic function
 
 A **quadratic function** has the form:
@@ -105,6 +117,12 @@ f(x) = ax^2 + bx + c
 
 The simplest case is \(f(x) = x^2\) (here \(a=1, b=0, c=0\)). The graph is a **parabola** — symmetric about the y-axis, U-shaped when \(a > 0\).
 
+> **Plain English**
+> Square the input: multiply `x` by itself.
+
+> **Python**
+> `y = x ** 2`
+
 ### Composition
 
 If \(f(x) = 2x\) and \(g(x) = x + 1\), then the **composition** \(f(g(x))\) means: first apply \(g\), then apply \(f\) to the result.
@@ -112,6 +130,12 @@ If \(f(x) = 2x\) and \(g(x) = x + 1\), then the **composition** \(f(g(x))\) mean
 \[
 f(g(x)) = f(x + 1) = 2(x + 1) = 2x + 2
 \]
+
+> **Plain English**
+> Run the inner function first, then feed its output into the outer function.
+
+> **Python**
+> `f(g(x))`
 
 ---
 
@@ -159,7 +183,7 @@ print(f(x))  # [0 2 4 6]
 print(g(x))  # [0 1 4 9]
 ```
 
-NumPy applies the function to every element. This is exactly how you will evaluate loss over batches of data.
+NumPy applies the function to every element. The same pattern applies whenever you evaluate a rule on many inputs at once — a list of numbers, a column of features, or an entire array.
 
 ---
 
@@ -262,31 +286,7 @@ Given \(g(x) = x^2\), compute \(g(-3)\) and \(g(3)\).
 - \(g(-3) = (-3)^2 = 9\)
 - \(g(3) = 3^2 = 9\)
 
-Squaring removes the sign. The parabola is symmetric about the y-axis. This matters when you see even activation patterns or symmetric loss landscapes.
-
-### Quadratic Symmetry
-
-For the quadratic function
-
-[
-g(x) = x^2
-]
-
-the outputs for (x) and (-x) are always the same because squaring removes the sign:
-
-[
-g(3) = 3^2 = 9,\qquad
-g(-3) = (-3)^2 = 9
-]
-
-This means
-
-[
-g(-x) = g(x)
-]
-
-so (g(x)) is an **even function**. Its graph is a **parabola** (Persian: **سهمی**) and is **symmetric about the y-axis**—the left and right sides are mirror images of each other. This property appears frequently in mathematics and machine learning, especially when analyzing symmetric functions and loss landscapes.
-
+Squaring removes the sign. The parabola is symmetric about the y-axis.
 
 ### Example 3: Function composition
 
@@ -308,9 +308,18 @@ def h(x):
 print(f(h(2)))  # 10
 ```
 
-### Example 4: Building a tiny "model"
+### Example 4: Composition with a nonlinear rule (preview)
 
-Suppose a neuron computes \(y = \text{ReLU}(2x - 1)\) where ReLU outputs the input if positive, else 0.
+> 📌 Preview — optional for now
+>
+> **Term:** ReLU  
+> **One line:** `max(0, x)` — zero if negative, else pass through  
+> **Learn properly in:** [Single Neuron](../03-neural-networks/01-single-neuron.md)  
+> You can skip the details and keep reading.
+
+Some composed functions use a nonlinear inner or outer step. Here is a tiny preview of what a neuron does — **not** required knowledge for this chapter:
+
+Suppose \(y = \text{ReLU}(2x - 1)\) where ReLU outputs the input if positive, else 0.
 
 ```python
 def relu(z):
@@ -337,35 +346,29 @@ This is already a function composition: linear then nonlinear. Real networks sta
 
 > 🧠 AI Insight
 >
-> A neural network is not magic — it is a very large function \(f_\theta(x)\) parameterized by weights \(\theta\). Training finds \(\theta\) so that outputs match labels.
+> A machine learning **model** is a large function: data in, prediction out. Training adjusts internal numbers (weights) so the output matches labels. You do not need to know how training works yet — only that the word **function** covers models too.
 
-**Linear regression** fits \(y = wx + b\). One linear function. The weight `w` is the slope; `b` is the intercept. Loss measures how far predictions are from truth.
+**Core idea for this chapter:** linear rules (\(y = wx + b\)) appear everywhere as the basic building block. Stacking and composing functions — which you learned in §3 and §6 — is how deep networks are built.
 
-**Logistic regression** applies a nonlinear function (sigmoid) to a linear output:
+### Preview terms (optional — skip if overwhelming)
 
-\[
-\sigma(z) = \frac{1}{1 + e^{-z}}
-\]
+| Term | One line | Learn properly in |
+|------|----------|-------------------|
+| Loss function | One number measuring error | [Gradients](04-gradients.md) |
+| ReLU | `max(0, x)` activation | [Single Neuron](../03-neural-networks/01-single-neuron.md) |
+| Sigmoid | Squashes to (0, 1) | [Single Neuron](../03-neural-networks/01-single-neuron.md) |
+| MSE | Squared prediction error | [Gradients](04-gradients.md) |
+| Cross-entropy | Classification loss | [Probability](06-probability.md) |
+| Neural network | Composed functions with learned weights | [Single Neuron](../03-neural-networks/01-single-neuron.md) |
 
-The sigmoid squashes any real number into the range \((0, 1)\) — interpretable as probability.
+> 📌 Preview — optional for now
+>
+> **Term:** logistic regression / sigmoid  
+> **One line:** linear output passed through sigmoid for probability  
+> **Learn properly in:** [Single Neuron](../03-neural-networks/01-single-neuron.md)  
+> You can skip the formula until then.
 
-**Neural network layer:**
-
-\[
-\text{output} = \sigma(Wx + b)
-\]
-
-- \(Wx + b\) is a linear function (matrix generalization of \(kx + b\)).
-- \(\sigma\) is an activation function (ReLU, sigmoid, GELU).
-
-**Loss functions** are functions too:
-
-- Mean Squared Error: \(L = \frac{1}{n}\sum (y_i - \hat{y}_i)^2\)
-- Cross-entropy: measures mismatch between predicted and true probability distributions
-
-When you call `model(x)` in PyTorch, you are evaluating a composed function. When you call `loss.backward()`, you will eventually compute how that function changes with respect to each parameter — which requires derivatives (next chapter).
-
-**Embeddings** map discrete token IDs to vectors, then layers apply functions to those vectors. **Attention** computes weighted sums using softmax — another function. Everything builds on the idea you learned here: input → rule → output.
+Full [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md) — bookmark this if jargon in early chapters causes anxiety.
 
 ---
 
@@ -381,11 +384,15 @@ When you call `model(x)` in PyTorch, you are evaluating a composed function. Whe
 
 > ⚠️ Common Mistake
 >
-> **Thinking all functions are linear.** Many beginners assume neural networks are linear because they see matrix multiplication. Linear layers are linear, but activation functions (ReLU, sigmoid) are not. Without nonlinearity, stacking layers would still be one linear function — unable to learn complex patterns.
+> **Thinking you must understand ReLU or sigmoid in chapter 1.** This chapter teaches **functions**. ML names are previews. Skip `📌 Preview` boxes and return in later chapters.
 
 > ⚠️ Common Mistake
 >
 > **Ignoring the domain.** \(f(x) = 1/x\) is undefined at \(x = 0\). In code, `1/0` raises an error. Always ask: which inputs are valid?
+
+> ⚠️ Common Mistake
+>
+> **Thinking all composed rules are linear.** \(f(g(x))\) can be nonlinear if \(f\) or \(g\) is nonlinear. You will see why that matters for neural networks in [Single Neuron](../03-neural-networks/01-single-neuron.md).
 
 **Correct understanding:** A function is a deterministic rule. `f(x)` is notation for evaluation. Composition chains rules. Neural networks chain many rules with parameters learned from data.
 
@@ -409,14 +416,18 @@ When you call `model(x)` in PyTorch, you are evaluating a composed function. Whe
 
 ### Hard
 
-9. A ReLU neuron computes \(\max(0, wx + b)\). For \(w = -2\), \(b = 3\), find all inputs \(x\) where the output is zero.
-10. Show that composing two linear functions \(f(x) = a x + b\) and \(g(x) = c x + d\) always gives another linear function. What are the new slope and intercept?
-11. The sigmoid \(\sigma(x) = 1/(1+e^{-x})\). Plot it from \(-10\) to \(10\). Why do values never reach exactly 0 or 1?
+9. Show that composing two linear functions \(f(x) = a x + b\) and \(g(x) = c x + d\) always gives another linear function. What are the new slope and intercept?
+10. Let \(f(x) = x^2\) and \(g(x) = x + 1\). Find \(f(g(x))\) and \(g(f(x))\) by hand. Are they the same function? Plot both on \([-2, 2]\).
 
-### Challenge
+### Challenge (optional — includes ML previews)
 
-12. **Function Explorer:** Write a program that takes a list of coefficient pairs and plots \(y = kx + b\) for each. Add a slider or loop over at least 5 different lines and save the figure to `book/assets/functions_explorer.png`.
-13. **MSE as a function:** For true value \(y = 3\) and prediction \(\hat{y} = wx\), the squared error is \(L(w) = (3 - w \cdot 1)^2\). Plot \(L(w)\) for \(w\) from \(-2\) to \(5\). Where is the minimum? Connect this to "learning the right weight."
+11. **Function Explorer:** Write a program that plots \(y = kx + b\) for at least 5 different `(k, b)` pairs. Save to `book/assets/functions_explorer.png`.
+
+12. **MSE preview:** For true value \(y = 3\) and prediction \(\hat{y} = wx\), squared error is \(L(w) = (3 - w)^2\). Plot \(L(w)\) for \(w\) from \(-2\) to \(5\). Where is the minimum? (Full loss story: [Gradients](04-gradients.md))
+
+13. *(Optional)* A ReLU neuron computes \(\max(0, wx + b)\). For \(w = -2\), \(b = 3\), find inputs where output is zero. Preview: [Single Neuron](../03-neural-networks/01-single-neuron.md)
+
+14. *(Optional)* Plot sigmoid \(\sigma(x) = 1/(1+e^{-x})\) from \(-10\) to \(10\). Preview: [Single Neuron](../03-neural-networks/01-single-neuron.md)
 
 ---
 
@@ -498,6 +509,17 @@ print(f"Saved to {out}")
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- A function maps each allowed input to exactly one output
+- Linear: \(f(x) = kx + b\); quadratic: \(f(x) = x^2\); composition: \(f(g(x))\)
+- Math `f(x)` ↔ Python `def f(x): return ...`
+- Plotting builds intuition for slope and symmetry
+
+### Preview terms (optional until later)
+
+- ReLU, sigmoid, MSE, cross-entropy, neural network — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key formulas
 
 | Function type | Formula | Python |
@@ -517,6 +539,18 @@ print(f"Saved to {out}")
 - **Parabola** — graph of a quadratic function
 - **Activation function** — nonlinear function applied in neural networks
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Read \(f(x) = 2x + 1\) and evaluate \(f(3)\) without hesitating.
+2. Write a Python `def` that matches a given math rule and call it on a NumPy array.
+3. Explain in one sentence what \(f(g(x))\) means — which function runs first?
+4. Sketch or describe why \(f(x) = x^2\) is symmetric about the y-axis.
+5. Plot a linear and a quadratic function with labeled axes.
+
+If any item is shaky, reread §3 and the [cheatsheet](01-functions-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -535,4 +569,5 @@ Companion notebook: [`app/math/01_functions.ipynb`](../../app/math/01_functions.
 
 ## Review
 
-Cheatsheet: [Functions — Cheatsheet](01-functions-cheatsheet.md)
+- Cheatsheet: [Functions — Cheatsheet](01-functions-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

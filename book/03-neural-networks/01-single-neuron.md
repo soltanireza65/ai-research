@@ -2,7 +2,9 @@
 
 ## 1. Introduction
 
-Every deep learning model — from image classifiers to large language models — is built from the same atomic unit: the **neuron**. Before you can read PyTorch model code or understand how GPT predicts the next token, you need to see what one neuron actually computes.
+> **Payoff chapter:** In [Functions](../01-math/01-functions.md) and [Derivatives](../01-math/02-derivatives.md), **ReLU** and **sigmoid** were previews. **Here you learn them properly.**
+
+Every deep learning model — from image classifiers to large language models — is built from the same atomic unit: the **neuron**.
 
 A single neuron takes several numeric inputs, multiplies each input by a **weight**, adds them together with a **bias**, and optionally applies a **nonlinear activation function**. That is the entire story at the smallest scale. A billion-parameter model is millions of these operations arranged in layers.
 
@@ -14,6 +16,12 @@ After this chapter you will be able to:
 - Connect the neuron formula to linear regression and to the first layer of any neural network.
 
 **Where this appears in AI:** Logistic regression is one neuron with a sigmoid activation. A fully connected layer is many neurons running in parallel. Every weight in a transformer MLP block started as this same weighted-sum pattern.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](01-single-neuron-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -440,6 +448,18 @@ plt.show()
 - **ReLU** — activation that passes positive values, zeros negatives
 - **Dot product** — sum of element-wise products of two vectors
 
+### Readiness checks
+
+Before **Building a Layer**, you should be able to:
+
+1. Compute \(z = \mathbf{w} \cdot \mathbf{x} + b\) by hand for a 2-input neuron.
+2. Implement the same computation in PyTorch with tensors.
+3. Explain what ReLU does to negative pre-activations.
+4. Describe the difference between pre-activation \(z\) and output \(y\).
+5. Skim the [cheatsheet](01-single-neuron-cheatsheet.md) without panic at unfamiliar names.
+
+If any item is shaky, reread §6 Worked Examples and rerun the lab.
+
 ---
 
 ## 13. Preview
@@ -455,3 +475,8 @@ You already know the per-neuron math. The layer is that same math, vectorized.
 ## Lab
 
 Companion notebook: [`app/neural_networks/01_single_neuron.ipynb`](../../app/neural_networks/01_single_neuron.ipynb)
+
+## Review
+
+- Cheatsheet: [Single Neuron — Cheatsheet](01-single-neuron-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

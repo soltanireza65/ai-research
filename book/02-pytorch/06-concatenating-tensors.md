@@ -13,11 +13,15 @@ After this chapter you will be able to:
 - Predict output shapes before calling cat/stack.
 - Apply concatenation patterns in neural network architectures.
 
-**Where this appears in AI:** ResNet concatenates and adds skip connections. Multi-head attention concatenates head outputs. Data loaders concatenate batches. Sequence models concatenate token embeddings with positional encodings (often via addition, but concat appears in fusion layers).
+**Where this appears in AI:** ResNet concatenates and adds skip connections. Data loaders concatenate batches. Sequence models join token segments along the sequence axis.
 
 Understanding `cat` versus `stack` is like knowing whether you are extending a list in place or wrapping several lists inside a new container — the data may look similar on paper but the tensor rank tells a different story to every downstream layer.
 
-In multi-GPU **pipeline parallelism**, activations from micro-batches are sometimes concatenated before the next stage receives them. Choosing the wrong dimension merges batch with sequence or splits heads incorrectly — errors that only appear at scale.
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](06-concatenating-tensors-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -63,6 +67,12 @@ Given tensors \(T_1, \ldots, T_k\) each with shape matching on all dims except \
 \end{cases}
 \]
 
+> **Plain English**
+> Glue tensors edge-to-edge along one axis; that axis grows, all others must already match.
+
+> **Python**
+> `torch.cat([a, b], dim=0)`
+
 ### stack
 
 Given identical shapes \((s_0, \ldots, s_{m-1})\), stack at dim \(d\) inserts new dimension:
@@ -72,6 +82,12 @@ Given identical shapes \((s_0, \ldots, s_{m-1})\), stack at dim \(d\) inserts ne
 \]
 
 where \(k\) is the number of tensors stacked.
+
+> **Plain English**
+> Stack same-shaped tensors like papers in a new tray — you add a dimension counting which tensor.
+
+> **Python**
+> `torch.stack([a, b], dim=0)`
 
 ---
 
@@ -334,6 +350,14 @@ Parallel heads concatenate along features, then `W_o` mixes them — the attenti
 ### Challenge
 
 11. **Shape planner:** Function `plan_cat(tensors, dim)` validates compat shapes, prints result shape, returns cat or raises clear error.
+
+> 📌 Preview — optional for now
+>
+> **Term:** U-Net skip fusion
+> **One line:** concatenate encoder and decoder feature maps along channels before conv mixing
+> **Learn properly in:** external vision architecture references; tensor skill is `torch.cat(..., dim=1)`
+> You can skip the details and keep reading.
+
 12. **Multi-scale fusion:** Three feature maps `(B, 64, 32, 32)`, `(B, 64, 16, 16)`, `(B, 64, 8, 8)` — upsample smaller to 32×32, cat channels → `(B, 192, 32, 32)`.
 
 ---
@@ -423,6 +447,17 @@ The same concat pattern appears in multimodal models when text and image embeddi
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- `cat` extends an existing axis; `stack` creates a new one
+- All non-concat dimensions must match for `cat`
+- `stack` requires identical shapes everywhere
+- Sequence concat is usually `dim=1` for `(B, T, D)`
+
+### Preview terms (optional until later)
+
+- Multi-head merge, U-Net skips, embedding concat — see [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
+
 ### Key rules
 
 | Operation | Shape change | Requirement |
@@ -437,6 +472,18 @@ The same concat pattern appears in multimodal models when text and image embeddi
 - **skip connection** — concat or add earlier features
 - **channel dim** — often dim 1 in NCHW for feature concat
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. Cat two `(3, 4)` tensors on dim=0 and dim=1 and state both output shapes.
+2. Stack three length-5 vectors on dim=0 and report the shape.
+3. Join `(B, T1, D)` and `(B, T2, D)` into `(B, T1+T2, D)`.
+4. Explain why `stack` fails when input shapes differ slightly.
+5. Choose `cat` vs `stack` for building a batch from individual samples.
+
+If any item is shaky, reread §2–§4 and the [cheatsheet](06-concatenating-tensors-cheatsheet.md).
+
 ---
 
 ## 13. Preview
@@ -450,3 +497,8 @@ You can create, multiply, transpose, reshape, slice, and join tensors. The last 
 ## Lab
 
 Companion notebook: [`app/pytorch/06_concatenating_tensors.ipynb`](../../app/pytorch/06_concatenating_tensors.ipynb)
+
+## Review
+
+- Cheatsheet: [Concatenating Tensors — Cheatsheet](06-concatenating-tensors-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

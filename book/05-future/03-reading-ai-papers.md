@@ -24,6 +24,6 @@ Solid completion of Part I (`01-math` through `04-transformers`). Attempt at lea
 ## Further Reading (when ready)
 
 - [How to Read a Paper — S. Keshav](https://web.stanford.edu/class/ee384m/Handouts/HowtoReadPaper.pdf)
-- [Annotated ML Paper Reviews — various community guides]
+- [Distill.pub](https://distill.pub/) — visual explanations of ML concepts
 
 Return to [Learning Path](../00-intro/03-learning-path.md) for the full 0→100 arc.

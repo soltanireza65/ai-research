@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** The **chain rule** preview in [Derivatives](../01-math/02-derivatives.md) and **gradients** in [Gradients](../01-math/04-gradients.md) were building toward this chapter. **`loss.backward()`** is no longer just a name — here is what it does.
+
 You can forward a batch through `nn.Linear`, apply ReLU, and compute a loss. But **how do the weights learn**? Something must tell each parameter whether to increase or decrease. That signal is the **gradient** — the derivative of the loss with respect to each weight.
 
 **Backpropagation** is an algorithm for computing all those gradients efficiently in a deep network. It applies the **chain rule** from calculus layer by layer, starting at the loss and working backward. PyTorch implements this automatically: call `loss.backward()`, then `optimizer.step()`.
@@ -14,6 +16,12 @@ After this chapter you will be able to:
 - Debug common autograd mistakes (in-place ops, forgetting `zero_grad`).
 
 **Where this appears in AI:** Every trained model — CNNs, transformers, diffusion networks — is trained by gradient-based optimization. Backpropagation is how gradients reach millions of parameters in one backward pass. There is no modern deep learning without it.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](03-backpropagation-cheatsheet.md) skim
+- Session B: §4–§6 + [lab notebook](../../app/neural_networks/03_backpropagation.ipynb)
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -392,13 +400,16 @@ print("dL/dw1:", g_w1.item(), "dL/dw2:", g_w2.item())
 
 ### Hard
 
-7. For \(h = \text{ReLU}(W_1 x + b_1)\), \(\hat{y} = W_2 h + b_2\), write the chain rule for \(\frac{\partial L}{\partial W_1}\) symbolically.
-8. Implement manual SGD on a 2-parameter quadratic \(L(w_1, w_2) = w_1^2 + w_2^2\) without `nn` — only tensors and `.backward()`.
-9. What does `retain_graph=True` do in `backward()`? When is it needed?
+7. Implement manual SGD on a 2-parameter quadratic \(L(w_1, w_2) = w_1^2 + w_2^2\) without `nn` — only tensors and `.backward()`.
+8. Explain why a neuron with permanently negative pre-activation never updates its weights under ReLU.
 
 ### Challenge
 
-10. **Micro-backprop tracer:** Build a 3-layer MLP, run one batch, and after `backward()` print each layer's weight gradient norm (`w.grad.norm()`). Compare norms across layers — do you see vanishing or exploding patterns with random init?
+9. For \(h = \text{ReLU}(W_1 x + b_1)\), \(\hat{y} = W_2 h + b_2\), write the chain rule for \(\frac{\partial L}{\partial W_1}\) symbolically. *(Preview: full symbolic chains are optional until you need custom autograd.)*
+
+10. What does `retain_graph=True` do in `backward()`? When is it needed? *(Preview: you rarely need this in standard training loops.)*
+
+11. **Micro-backprop tracer:** Build a 3-layer MLP, run one batch, and after `backward()` print each layer's weight gradient norm (`w.grad.norm()`). Compare norms across layers — do you see vanishing or exploding patterns with random init?
 
 ---
 
@@ -508,6 +519,18 @@ plt.show()
 - **zero_grad** — reset accumulated gradients before backward
 - **Dead ReLU** — neuron with permanently zero gradient when \(z \leq 0\)
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. State the five steps in a standard PyTorch training iteration (`zero_grad`, forward, loss, `backward`, `step`).
+2. Apply the chain rule to \(L = (wx - t)^2\) and compute \(\frac{\partial L}{\partial w}\) by hand.
+3. Explain what `.grad` contains after `loss.backward()` on a scalar loss.
+4. Name two autograd mistakes (e.g., skipping `zero_grad`, in-place ops on graph tensors).
+5. Run a tiny `nn.Linear(1, 1)` training loop and confirm loss decreases.
+
+If any item is shaky, reread §4 and the [lab notebook](../../app/neural_networks/03_backpropagation.ipynb).
+
 ---
 
 ## 13. Preview
@@ -519,3 +542,12 @@ Neural networks taught you *parameterized functions*. Transformers teach you *dy
 **Next chapter:** [Attention Mechanism](../04-transformers/01-attention-mechanism.md)
 
 ---
+
+## Lab
+
+Companion notebook: [`app/neural_networks/03_backpropagation.ipynb`](../../app/neural_networks/03_backpropagation.ipynb)
+
+## Review
+
+- Cheatsheet: [Backpropagation — Cheatsheet](03-backpropagation-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

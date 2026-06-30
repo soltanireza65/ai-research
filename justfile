@@ -10,6 +10,9 @@ notebooks:
 validate-book *ARGS:
     uv run python scripts/validate_chapter.py {{ARGS}}
 
+cheatsheets:
+    uv run python scripts/generate_cheatsheets.py
+
 test:
     uv run pytest
 

@@ -5,7 +5,17 @@
 
 ## 1. Introduction
 
-Why this topic matters. Where it appears in AI. What the reader can do after finishing.
+Why this topic matters. What the reader can do after finishing.
+
+**What you must learn in this chapter (core):** list 3–5 concrete skills.
+
+**What you can skip for now (preview):** link to [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md) for any ML terms named but not taught here.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + cheatsheet skim
+- Session B: §4–§6 + lab
+- Session C: Easy–Medium exercises + readiness checks
 
 ## 2. Intuition
 
@@ -18,6 +28,14 @@ Build intuition before definitions. Use diagrams and plain language.
 ## 3. Formal Definitions
 
 Introduce every symbol on first use. Never assume prior mathematical knowledge.
+
+After every major formula, add:
+
+> **Plain English**
+> One sentence in everyday language.
+
+> **Python**
+> `y = 2 * x`
 
 ## 4. Programming Perspective
 
@@ -46,7 +64,16 @@ Start extremely easy. Increase difficulty. Show every calculation step.
 
 > 🧠 AI Insight
 >
-> Connect to machine learning, neural networks, optimization, transformers, embeddings.
+> One or two short paragraphs connecting core math to AI.
+
+For math chapters 01–04: **previews only** in this section. Use preview callouts, not full formulas.
+
+> 📌 Preview — optional for now
+>
+> **Term:** example_term  
+> **One line:** brief meaning  
+> **Learn properly in:** [Chapter](../path/to/chapter.md)  
+> You can skip the details and keep reading.
 
 ## 8. Common Mistakes
 
@@ -70,13 +97,15 @@ Start extremely easy. Increase difficulty. Show every calculation step.
 
 ### Challenge
 
-1. ...
+1. ... (optional ML previews allowed here with 📌 Preview callout)
 
 ## 10. Mini Project
 
 Concrete small project reinforcing the chapter.
 
 ## 11. Interview Questions
+
+> Optional until you finish Module 01 — skip if they cause anxiety.
 
 **Q1:** ...
 
@@ -92,6 +121,14 @@ Concrete small project reinforcing the chapter.
 
 ## 12. Summary
 
+### Core takeaways (must know)
+
+- ...
+
+### Preview terms (optional until later)
+
+- ...
+
 ### Key formulas
 
 - ...
@@ -100,6 +137,18 @@ Concrete small project reinforcing the chapter.
 
 - ...
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. ...
+2. ...
+3. ...
+4. ...
+5. ...
+
+If any item is shaky, reread §X and the [cheatsheet](NN-chapter-cheatsheet.md).
+
 ## 13. Preview
 
 How this chapter prepares the reader for the next chapter.
@@ -107,3 +156,8 @@ How this chapter prepares the reader for the next chapter.
 ## Lab
 
 Companion notebook: [`app/<module>/<notebook>.ipynb`](../../app/<module>/<notebook>.ipynb)
+
+## Review
+
+- Cheatsheet: [Chapter Title — Cheatsheet](NN-chapter-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)

@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** [Self-Attention](02-self-attention.md) gave one attention pattern per layer. **Multi-head attention** runs \(h\) parallel heads — each a smaller attention in \(d_{head} = d_{model}/h\) dimensions — then merges with \(\mathbf{W}_O\).
+
 A single self-attention head computes one \(n \times n\) attention pattern — one way to relate tokens. **Multi-head attention** runs \(h\) independent attention operations **in parallel**, each with smaller dimension \(d_{head} = d_{model} / h\), then **concatenates** the results and applies a final linear projection.
 
 The intuition: one head might track syntax (subject-verb agreement), another coreference ("it" → noun), another local bigrams. Multiple heads let the model capture heterogeneous relationships without one attention matrix doing everything.
@@ -14,6 +16,12 @@ After this chapter you will be able to:
 - Relate the implementation to `nn.MultiheadAttention` and transformer papers.
 
 **Where this appears in AI:** The original transformer uses \(h=8\) heads with \(d_{model}=512\). GPT-3 uses 96 heads with \(d_{model}=12288\). Every production LLM uses multi-head (or multi-query / grouped-query variants that share keys and values across heads for efficiency).
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](03-multi-head-attention-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -299,9 +307,9 @@ Averaging would force each head to agree on a single representation. Concatenati
 >
 > Attention head analysis papers show specialized roles emerge after training — some heads attend to previous token, some to sentence boundaries, some to rare words. Multi-head design is not just engineering convenience; it provides a **basis** of relationship types the model can combine.
 
-**Grouped-query attention (GQA):** LLaMA 2/3 uses fewer K/V head groups than Q heads — shares keys/values to cut memory bandwidth during inference while keeping diverse queries.
-
-**Multi-query attention (MQA):** One K/V head shared across all Q heads — even faster inference, used in PaLM, Falcon.
+> 📌 Preview — optional for now
+>
+> **Grouped-query attention (GQA)** and **multi-query attention (MQA)** share key/value heads across query heads to cut inference memory. Used in LLaMA 2/3, PaLM, Falcon. Skip until you deploy or optimize LLMs — standard multi-head attention is the core idea.
 
 **Vision transformers:** Patches attend across heads for local texture vs global shape.
 
@@ -348,10 +356,11 @@ Averaging would force each head to agree on a single representation. Concatenati
 ### Hard
 
 7. Show output of concat + Wo is equivalent to a single large attention if heads are constrained — why do we still use multiple heads?
-8. Implement GQA with 8 query heads and 2 key/value groups.
-9. Explain memory cost of storing all head attention maps during training.
+8. Explain memory cost of storing all head attention maps during training.
 
 ### Challenge
+
+9. Implement GQA with 8 query heads and 2 key/value groups. *(Optional efficiency variant — see §7 preview.)*
 
 10. **Head ablation:** Train or forward a small transformer; zero out one head's output before Wo and measure perplexity or task metric change. Report which heads matter most.
 
@@ -450,6 +459,18 @@ print("OK")
 - **GQA / MQA** — efficient variants sharing K/V across heads
 - **contiguous().view()** — safe reshape after transpose
 
+### Readiness checks
+
+Before **Decoder-Only Transformer**, you should be able to:
+
+1. Reshape Q/K/V into `(batch, heads, seq, d_head)` and back.
+2. Run attention independently per head and concatenate outputs.
+3. Apply output projection \(\mathbf{W}_O\) after concatenation.
+4. Relate your code to `nn.MultiheadAttention` arguments.
+5. Debug shape errors using the [cheatsheet](03-multi-head-attention-cheatsheet.md) shape table.
+
+If any item is shaky, reread §6 and rerun the lab.
+
 ---
 
 ## 13. Preview
@@ -465,3 +486,8 @@ Full attention is for encoding. Causal attention is for generation.
 ## Lab
 
 Companion notebook: [`app/transformers/03_multi_head_attention.ipynb`](../../app/transformers/03_multi_head_attention.ipynb)
+
+## Review
+
+- Cheatsheet: [Multi-Head Attention — Cheatsheet](03-multi-head-attention-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

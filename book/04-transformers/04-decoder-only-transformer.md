@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** **Cross-entropy** from [Probability](../01-math/06-probability.md) is the training loss for next-token prediction. **AdamW** and `loss.backward()` from [Backpropagation](../03-neural-networks/03-backpropagation.md) drive parameter updates. Masked **multi-head attention** from the previous chapters is the core mixing block.
+
 A **decoder-only transformer** is the architecture family behind GPT-style language models. It reads a sequence of tokens from left to right and learns one central task: predict the next token from the tokens that came before it. That simple training objective scales surprisingly far. With enough data, compute, and careful engineering, next-token prediction produces models that can summarize, translate, write code, reason through problems, call tools, and follow instructions.
 
 The word **decoder** comes from the original transformer paper, where the model had an encoder that read an input sequence and a decoder that generated an output sequence. GPT-style models keep only the decoder side. They do not have a separate encoder; instead, every token position attends only to earlier positions and itself. This constraint is called **causal masking** because the model is not allowed to see the future.
@@ -15,6 +17,12 @@ After this chapter you will be able to:
 - Understand how this chapter connects single neurons, layers, backpropagation, and attention into a working LLM architecture.
 
 **Where this appears in AI:** GPT, LLaMA, Mistral, Qwen, Gemma, and many other large language models are decoder-only transformers. Their blocks repeat the same pattern: masked multi-head self-attention, residual connection, layer normalization, feed-forward network, another residual connection. The details vary, but the learning problem is the same: use the past context to predict what comes next.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](04-decoder-only-transformer-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -497,21 +505,21 @@ A fourth mistake is thinking the model "understands" text because attention weig
 
 ### Medium
 
-1. Write a function `make_causal_mask(seq_len, device)` that returns a boolean upper-triangular mask.
-2. Modify the masked attention function so it accepts a batch of inputs with shape `(batch, seq_len, d_model)`.
-3. Plot random masked attention weights and explain what the x-axis, y-axis, and color intensity mean.
+4. Write a function `make_causal_mask(seq_len, device)` that returns a boolean upper-triangular mask.
+5. Modify the masked attention function so it accepts a batch of inputs with shape `(batch, seq_len, d_model)`.
+6. Plot random masked attention weights and explain what the x-axis, y-axis, and color intensity mean.
 
 ### Hard
 
-1. Implement a tiny decoder block using separate linear layers for \(Q\), \(K\), and \(V\) instead of `nn.MultiheadAttention`.
-2. Create a toy vocabulary of characters, turn a string into token IDs, and build input-target pairs for next-character prediction.
-3. Compare the loss when you train with a correct causal mask versus no mask on a tiny synthetic dataset. Explain why the unmasked version can cheat.
+7. Implement a tiny decoder block using separate linear layers for \(Q\), \(K\), and \(V\) instead of `nn.MultiheadAttention`.
+8. Create a toy vocabulary of characters, turn a string into token IDs, and build input-target pairs for next-character prediction.
+9. Compare the loss when you train with a correct causal mask versus no mask on a tiny synthetic dataset. Explain why the unmasked version can cheat.
 
 ### Challenge
 
-1. Implement a two-layer decoder-only transformer for character-level modeling on a short text file.
-2. Add greedy generation: feed a prefix, take the argmax next token, append it, and repeat for 100 steps.
-3. Replace learned positional embeddings with sinusoidal or rotary-style positional information. Explain what changed and what stayed the same.
+10. Implement a two-layer decoder-only transformer for character-level modeling on a short text file.
+11. Add greedy generation: feed a prefix, take the argmax next token, append it, and repeat for 100 steps.
+12. Replace learned positional embeddings with sinusoidal or rotary-style positional information. Explain what changed and what stayed the same.
 
 ---
 
@@ -595,6 +603,18 @@ Decoder-only transformers are GPT-style language models trained with next-token 
 - **Cross-entropy loss:** Loss that penalizes low probability assigned to the true next token.
 - **Residual stream:** The main representation pathway updated by attention and MLP blocks.
 
+### Readiness checks
+
+Before Part II or paper reading, you should be able to:
+
+1. Explain causal masking in plain language.
+2. Trace token IDs → embeddings → attention → logits → cross-entropy.
+3. Implement or read a minimal decoder block without getting lost in shapes.
+4. Describe how next-token prediction trains the full stack.
+5. Skim the [cheatsheet](04-decoder-only-transformer-cheatsheet.md) as your capstone review.
+
+If any item is shaky, reread §6–§7 and rerun the lab.
+
 ---
 
 ## 13. Preview
@@ -606,3 +626,8 @@ This chapter completes the first pass through transformer mechanics: attention, 
 ## Lab
 
 Companion notebook: [`app/transformers/04_decoder_only_transformer.ipynb`](../../app/transformers/04_decoder_only_transformer.ipynb)
+
+## Review
+
+- Cheatsheet: [Decoder-Only Transformer — Cheatsheet](04-decoder-only-transformer-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../../00-intro/04-vocabulary-roadmap.md)

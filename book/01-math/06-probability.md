@@ -2,6 +2,8 @@
 
 ## 1. Introduction
 
+> **Payoff chapter:** In [Functions](01-functions.md) and early math chapters, **cross-entropy** and **softmax** were only previews. **Here you learn them properly.**
+
 Machine learning models rarely say "the answer is exactly 7." They say "there is a 92% chance this image is a cat" or "the next token is 'learning' with probability 0.15." **Probability** is the language of uncertainty — and modern AI is built on it.
 
 Classification heads output probability distributions. Language models predict the next token from a distribution over the vocabulary. Diffusion models learn noise distributions. Reinforcement learning estimates expected rewards. Even deterministic-looking training uses probabilistic ideas: mini-batch sampling, dropout, data augmentation.
@@ -16,6 +18,12 @@ After this chapter you will be able to:
 - Read classification outputs and language model `logits` with confidence.
 
 **Where this appears in AI:** `F.cross_entropy(logits, target)` is the standard classification loss. `F.softmax(logits, dim=-1)` produces attention weights and token probabilities. Generative models sample from learned distributions. Evaluation metrics (accuracy, perplexity) assume probabilistic predictions.
+
+**Suggested pacing (3 sessions):**
+
+- Session A: §1–§3 + [cheatsheet](06-probability-cheatsheet.md) skim
+- Session B: §4–§6 + lab notebook
+- Session C: Easy–Medium exercises + readiness checks in §12
 
 ---
 
@@ -90,6 +98,14 @@ Average value over many samples — used in reinforcement learning and loss anal
 
 ### Softmax
 
+The letter \(e \approx 2.718\) is Euler's number. The function \(e^z\) grows very fast as \(z\) increases — that is why softmax can turn a large logit into a dominant probability. You do not need to derive \(e\); treat `np.exp(z)` as "raise \(e\) to the power \(z\)." See [Math Basics](../00-intro/05-math-basics.md) for a gentle intro.
+
+> **Plain English**
+> \(e\) is a special constant (like \(\pi\)). Raising it to a power makes positive numbers grow quickly — softmax uses that to amplify bigger logits.
+
+> **Python**
+> `np.exp(z)`  *(same as \(e^z\))*
+
 Given logits (raw scores) \(z_1, \ldots, z_k\):
 
 \[
@@ -102,6 +118,14 @@ Given logits (raw scores) \(z_1, \ldots, z_k\):
 - Invariant to adding the same constant to all logits (numerical stability uses this).
 
 ### Cross-entropy
+
+The **logarithm** (`np.log` in Python) answers: "what power do I raise \(e\) to get this number?" For probabilities in \((0, 1]\), \(\log \hat{p}\) is negative or zero — so \(-\log \hat{p}\) is a positive **penalty** that blows up when \(\hat{p}\) is tiny (confident and wrong).
+
+> **Plain English**
+> Log turns small probabilities into large negative numbers; the minus sign flips that into a positive loss — worse when you were sure but wrong.
+
+> **Python**
+> `loss = -np.log(p_true_class)`
 
 For true class \(y\) (integer index) and predicted probabilities \(\hat{p}\):
 
@@ -483,13 +507,27 @@ print(f"Saved to {out}")
 - **Categorical distribution** — distribution over finitely many classes
 - **Sampling** — drawing outcomes according to a distribution
 
+### Readiness checks
+
+Before the next chapter, you should be able to:
+
+1. State the probability axioms informally: non-negative, sum to 1.
+2. Implement `softmax` in NumPy and verify outputs sum to 1.
+3. Compute cross-entropy \(-\log \hat{p}_y\) for a given true class and predicted distribution.
+4. Explain why `F.cross_entropy` expects logits, not probabilities.
+5. Describe in one sentence what softmax does to a vector of scores.
+
+If any item is shaky, reread §3 and the [cheatsheet](06-probability-cheatsheet.md).
+
 ---
 
 ## 13. Preview
 
-You have completed the core math toolkit: **functions**, **derivatives**, **vectors**, **gradients**, **matrices**, and **probability**. The next module — **PyTorch** — puts these ideas into GPU-accelerated tensors: creation, matrix multiply, reshaping, indexing, and the autograd engine that computes gradients automatically.
+You have completed the core math toolkit: **functions**, **derivatives**, **vectors**, **gradients**, **matrices**, and **probability**.
 
-When you write `torch.softmax` and `F.cross_entropy`, you are using this chapter. When you write `nn.Linear` and attention, you are using matrices and vectors. When you call `backward()`, you are using gradients.
+> **Preview resolution:** Terms like **MSE** (from [Gradients](04-gradients.md)), **softmax**, and **cross-entropy** (this chapter) are no longer previews — you have learned them. **ReLU** and **sigmoid** pay off in [Single Neuron](../03-neural-networks/01-single-neuron.md).
+
+The next module — **PyTorch** — puts these ideas into GPU-accelerated tensors.
 
 **Next module:** PyTorch — starting with [Creating Tensors](../02-pytorch/01-creating-tensors.md)
 
@@ -498,3 +536,8 @@ When you write `torch.softmax` and `F.cross_entropy`, you are using this chapter
 ## Lab
 
 Companion notebook: [`app/math/06_probability.ipynb`](../../app/math/06_probability.ipynb)
+
+## Review
+
+- Cheatsheet: [Probability — Cheatsheet](06-probability-cheatsheet.md)
+- Jargon: [Vocabulary Roadmap](../00-intro/04-vocabulary-roadmap.md)
